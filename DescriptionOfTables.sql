@@ -9,3 +9,5 @@ FROM SYS.OBJECTS AS T
 	LEFT JOIN sys.extended_properties sep on T.OBJECT_ID = sep.major_id AND sep.minor_id = 0 AND sep.name = 'MS_Description'
 WHERE T.TYPE_DESC='USER_TABLE' and s.name <> 'dbo' 
 ORDER BY s.name, T.NAME;
+
+GO
