@@ -269,7 +269,6 @@ ALTER PARTITION FUNCTION [pfDatos] () SPLIT RANGE ('20101001');
 ALTER PARTITION SCHEME [psDatos] NEXT USED [PRIMARY]
 
 /*
-Vaya !! el SWITCH no progresa, y se queda en espera de que se libere el bloqueo existente.
 Hacemos un COMMIT en la transacción anterior:
 */
 
