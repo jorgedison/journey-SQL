@@ -10,19 +10,19 @@
 -- Segundo Paso : Agregar Files Para  los Filegroups Creados
 
 	ALTER DATABASE Prueba ADD FILE
-	(Name = 'ventas_2011A', FILENAME = 'D:\Data\ventas2011A.ndf', Size = 25000MB, Maxsize = 100000MB)
+	(Name = 'ventas_2011A', FILENAME = 'D:\Data\ventas2011A.ndf', SIZE = 5120KB, Maxsize = 100000MB)
 	 TO FILEGROUP [Fg_Ventas_20011A]
 
 	ALTER DATABASE Prueba ADD FILE
-	(Name = 'ventas_2011B', FILENAME = 'E:\Data\ventas2011B.ndf', Size = 25000MB, Maxsize = 100000MB)
+	(Name = 'ventas_2011B', FILENAME = 'E:\Data\ventas2011B.ndf', SIZE = 5120KB, MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB)
 	 TO FILEGROUP [Fg_Ventas_20011B]
 
 	ALTER DATABASE Prueba ADD FILE
-	(Name = 'ventas_2012A', FILENAME = 'F:\Data\ventas2012A.ndf', Size = 25000MB, Maxsize = 100000MB)
+	(Name = 'ventas_2012A', FILENAME = 'F:\Data\ventas2012A.ndf', SIZE = 5120KB, MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB)
 	 TO FILEGROUP [Fg_Ventas_20012A]
 
 	 ALTER DATABASE Prueba ADD FILE
-	(Name = 'ventas_2012B', FILENAME = 'G:\Data\ventas2012B.ndf', Size = 25000MB, Maxsize = 100000MB)
+	(Name = 'ventas_2012B', FILENAME = 'G:\Data\ventas2012B.ndf', SIZE = 5120KB, MAXSIZE = UNLIMITED, FILEGROWTH = 1024KB)
 	 TO FILEGROUP [Fg_Ventas_20012B]
 
 -- Tercer Paso :  Generar una Partition Function (la cual determinará los rangos a partir de los cuales particionaremos la tabla, - en nuestro caso por fecha -)
