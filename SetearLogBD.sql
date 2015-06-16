@@ -1,17 +1,22 @@
-USE [DATABASE]
+USE [DATABASE];
 GO
 
-sp_helpdb DATABASE_NAME;
+sp_helpdb [DATABASE]
 
--- Antes de truncar el log cambiamos el modelo de recuperación a SIMPLE.
-ALTER DATABASE DATABASE_NAME
+-- View Detail 
+SELECT * FROM sys.database_files;
+SELECT name ,size/128.0 - CAST(FILEPROPERTY(name, 'SpaceUsed') AS int)/128.0 AS AvailableSpaceInMB
+FROM sys.database_files;
+DBCC LOGINFO;
+
+-- Truncate the log by changing the database recovery model to SIMPLE.
+ALTER DATABASE [DATABASE]
 SET RECOVERY SIMPLE;
 GO
---Reducimos el log de transacciones a  1 MB.
-DBCC SHRINKFILE(DATABASE_NAME_Log, 1);
+-- Shrink the truncated log file to 100 MB.
+DBCC SHRINKFILE (2, 100);
 GO
--- Cambiamos nuevamente el modelo de recuperación a Completo.
-ALTER DATABASE DATABASE_NAME
+-- Reset the database recovery model.
+ALTER DATABASE [DATABASE]
 SET RECOVERY FULL;
 GO
-
