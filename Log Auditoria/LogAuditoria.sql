@@ -1,7 +1,7 @@
 USE [DATABASE]
 GO
 
-/*	Script: Auditoria de modificación de procedimientos almacenados
+/*	Script: Auditoria de modificaciÃ³n de procedimientos almacenados
 	Autor: Jorge Rodriguez
 */
 
@@ -22,7 +22,11 @@ CREATE TABLE [dbo].[AlterLog](
 	[ObjectType] [varchar](25) NULL,
 	[TSQLCommand] [text] NOT NULL,
 	[EventTime] [datetime] NULL,
-	[LoginName] [varchar](256) NULL
+	[LoginName] [varchar](256) NULL,
+	[ServerName] [varchar](256) NULL,
+	[DatabaseName] [varchar] (256) NULL,
+	[SchemaName] [varchar] (256) NULL
+	
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
@@ -47,12 +51,16 @@ SET NOCOUNT ON;
 DECLARE @data XML
 SET @data = EVENTDATA()
 
-INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName)
-VALUES(GETDATE(),@data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
+INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName)
+VALUES(GETDATE(),
+@data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
 @data.value('(/EVENT_INSTANCE/ObjectName)[1]', 'varchar(256)'), 
 @data.value('(/EVENT_INSTANCE/ObjectType)[1]', 'varchar(25)'), 
 @data.value('(/EVENT_INSTANCE/TSQLCommand)[1]', 'varchar(max)'), 
-@data.value('(/EVENT_INSTANCE/LoginName)[1]', 'varchar(256)')
+@data.value('(/EVENT_INSTANCE/LoginName)[1]', 'varchar(256)'),
+@data.value('(/EVENT_INSTANCE/ServerName)[1]', 'varchar(256)'),
+@data.value('(/EVENT_INSTANCE/DatabaseName)[1]', 'varchar(256)'),
+@data.value('(/EVENT_INSTANCE/SchemaName)[1]', 'varchar(256)')
 )
 
 GO
