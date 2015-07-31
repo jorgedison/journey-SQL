@@ -1,4 +1,7 @@
-
+--Script: Denegar Accesos a SSMS a usuario de BD
+--	Example:
+--	LoginName: jorge
+--	ProgranName: Microsoft SQL Server Management Studio
 
 CREATE TRIGGER [TR_LOGON_APP]
 ON ALL SERVER 
