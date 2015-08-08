@@ -7,15 +7,15 @@ GO
 
 /*1. Crea Tabla de auditoria*/
 
-/****** Object:  Table [dbo].[AlterLog]    Script Date: 21/05/2015 10:15:16 a.m. ******/
+/****** Object:  Table [dbo].[AlterLog]    Script Date: 07/08/2015 04:29:33 p.m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 SET ANSI_PADDING ON
 GO
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AlterLog]') AND type in (N'U'))
-BEGIN
+
 CREATE TABLE [dbo].[AlterLog](
 	[EventType] [varchar](50) NULL,
 	[ObjectName] [varchar](256) NULL,
@@ -24,17 +24,20 @@ CREATE TABLE [dbo].[AlterLog](
 	[EventTime] [datetime] NULL,
 	[LoginName] [varchar](256) NULL,
 	[ServerName] [varchar](256) NULL,
-	[DatabaseName] [varchar] (256) NULL,
-	[SchemaName] [varchar] (256) NULL
-	
+	[DatabaseName] [varchar](256) NULL,
+	[SchemaName] [varchar](256) NULL,
+	[HostName] [varchar](256) NULL,
+	[IPAddress] [varchar](50) NULL,
+	[ProgramName] [varchar](256) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-END
 GO
 SET ANSI_PADDING OFF
 GO
 
+
+
 /*2. Crea Trigger*/
-/****** Object:  DdlTrigger [AlterProcs]    Script Date: 21/05/2015 05:21:10 p.m. ******/
+/****** Object:  DdlTrigger [AlterProcs]    Script Date: 07/08/2015 04:28:49 p.m. ******/
 SET ANSI_NULLS ON
 GO
 
@@ -51,7 +54,7 @@ SET NOCOUNT ON;
 DECLARE @data XML
 SET @data = EVENTDATA()
 
-INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName)
+INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, ProgramName)
 VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
 @data.value('(/EVENT_INSTANCE/ObjectName)[1]', 'varchar(256)'), 
@@ -60,9 +63,17 @@ VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/LoginName)[1]', 'varchar(256)'),
 @data.value('(/EVENT_INSTANCE/ServerName)[1]', 'varchar(256)'),
 @data.value('(/EVENT_INSTANCE/DatabaseName)[1]', 'varchar(256)'),
-@data.value('(/EVENT_INSTANCE/SchemaName)[1]', 'varchar(256)')
+@data.value('(/EVENT_INSTANCE/SchemaName)[1]', 'varchar(256)'),
+HOST_NAME(),
+PROGRAM_NAME()
 )
 
+GO
+
+SET ANSI_NULLS OFF
+GO
+
+SET QUOTED_IDENTIFIER OFF
 GO
 
 ENABLE TRIGGER [AlterProcs] ON DATABASE
