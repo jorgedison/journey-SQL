@@ -1,3 +1,5 @@
+-- Tamaño de tablas (1)
+
 USE [DATABASE]
 GO
 
@@ -48,3 +50,22 @@ SELECT sys.objects.name, SUM(reserved_page_count) * 8.0 / 1024 as [T]
 
 SELECT * FROM sys.dm_db_partition_stats, 
 		sys.objects WHERE  sys.dm_db_partition_stats.object_id = sys.objects.object_id AND schema_id <> 4
+
+-- Tamaño de tablas (2)
+
+SET NOCOUNT ON 
+DBCC UPDATEUSAGE(0) 
+-- Table row counts and sizes.
+DECLARE @sizes TABLE
+(
+    [name] NVARCHAR(128),
+    [rows] CHAR(11),
+    reserved VARCHAR(18),
+    data VARCHAR(18),
+    index_size VARCHAR(18),
+    unused VARCHAR(18)
+)
+INSERT @sizes EXEC sp_msForEachTable 'EXEC sp_spaceused ''?''' 
+SELECT *
+FROM   @sizes
+ORDER BY convert(int, substring(data, 1, len(data)-3)) desc
