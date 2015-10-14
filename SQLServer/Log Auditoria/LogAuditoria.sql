@@ -46,7 +46,7 @@ GO
 
 CREATE TRIGGER [AlterProcs]
 ON DATABASE
-FOR ALTER_PROCEDURE
+FOR CREATE_PROCEDURE, ALTER_PROCEDURE, DROP_PROCEDURE
 AS
 
 SET NOCOUNT ON; 
@@ -54,7 +54,18 @@ SET NOCOUNT ON;
 DECLARE @data XML
 SET @data = EVENTDATA()
 
-INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, ProgramName)
+DECLARE @IP VARCHAR(50)
+SELECT @IP = 'IP'
+SELECT @IP = (SELECT dec.local_net_address
+FROM sys.dm_exec_connections AS dec
+WHERE dec.session_id = @@SPID)
+
+If @IP IS NULL 
+BEGIN
+SET @IP = '127.0.0.1'
+END
+
+INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, IPAddress, ProgramName)
 VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
 @data.value('(/EVENT_INSTANCE/ObjectName)[1]', 'varchar(256)'), 
@@ -65,6 +76,7 @@ VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/DatabaseName)[1]', 'varchar(256)'),
 @data.value('(/EVENT_INSTANCE/SchemaName)[1]', 'varchar(256)'),
 HOST_NAME(),
+@IP,
 PROGRAM_NAME()
 )
 
