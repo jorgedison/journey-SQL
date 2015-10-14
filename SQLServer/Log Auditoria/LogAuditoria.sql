@@ -7,9 +7,10 @@ GO
 
 /*1. Crea Tabla de auditoria*/
 
-/****** Object:  Table [dbo].[AlterLog]    Script Date: 07/08/2015 04:29:33 p.m. ******/
+/****** Object:  Table [dbo].[AlterLog]    Script Date: 14/10/2015 04:07:32 p.m. ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
 
@@ -17,6 +18,7 @@ SET ANSI_PADDING ON
 GO
 
 CREATE TABLE [dbo].[AlterLog](
+	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[EventType] [varchar](50) NULL,
 	[ObjectName] [varchar](256) NULL,
 	[ObjectType] [varchar](25) NULL,
@@ -30,23 +32,32 @@ CREATE TABLE [dbo].[AlterLog](
 	[IPAddress] [varchar](50) NULL,
 	[ProgramName] [varchar](256) NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
 GO
+
 SET ANSI_PADDING OFF
 GO
 
 
 
 /*2. Crea Trigger*/
-/****** Object:  DdlTrigger [AlterProcs]    Script Date: 07/08/2015 04:28:49 p.m. ******/
-SET ANSI_NULLS ON
+--/****** Object:  DdlTrigger [AlterObject]    Script Date: 14/10/2015 03:08:36 p.m. ******/
+IF EXISTS(SELECT * FROM SYS.triggers WHERE name = 'AlterObject')
+BEGIN
+DROP TRIGGER [AlterObject] ON DATABASE
+END
 GO
 
+/****** Object:  DdlTrigger [AlterObject]    Script Date: 14/10/2015 03:08:36 p.m. ******/
+SET ANSI_NULLS ON
+GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TRIGGER [AlterProcs]
+CREATE TRIGGER [AlterObject]
 ON DATABASE
-FOR CREATE_PROCEDURE, ALTER_PROCEDURE, DROP_PROCEDURE
+FOR CREATE_PROCEDURE, ALTER_PROCEDURE, DROP_PROCEDURE, CREATE_FUNCTION, ALTER_FUNCTION, DROP_FUNCTION, CREATE_TABLE, ALTER_TABLE, DROP_TABLE, CREATE_VIEW, ALTER_VIEW, DROP_VIEW, CREATE_SCHEMA, ALTER_SCHEMA, DROP_SCHEMA, CREATE_INDEX, ALTER_INDEX, DROP_INDEX, CREATE_USER, ALTER_USER, DROP_USER
+
 AS
 
 SET NOCOUNT ON; 
@@ -65,7 +76,7 @@ BEGIN
 SET @IP = '127.0.0.1'
 END
 
-INSERT INTO dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, IPAddress, ProgramName)
+INSERT INTO AuditBD.dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, IPAddress, ProgramName)
 VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
 @data.value('(/EVENT_INSTANCE/ObjectName)[1]', 'varchar(256)'), 
@@ -80,6 +91,10 @@ HOST_NAME(),
 PROGRAM_NAME()
 )
 
+
+
+
+
 GO
 
 SET ANSI_NULLS OFF
@@ -88,5 +103,6 @@ GO
 SET QUOTED_IDENTIFIER OFF
 GO
 
-ENABLE TRIGGER [AlterProcs] ON DATABASE
+ENABLE TRIGGER [AlterObject] ON DATABASE
 GO
+
