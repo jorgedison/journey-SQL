@@ -69,3 +69,12 @@ INSERT @sizes EXEC sp_msForEachTable 'EXEC sp_spaceused ''?'''
 SELECT *
 FROM   @sizes
 ORDER BY convert(int, substring(data, 1, len(data)-3)) desc
+
+-- Tamaño de tablas (3)
+
+SELECT o.NAME,
+  i.rowcnt 
+FROM sysindexes AS i
+  INNER JOIN sysobjects AS o ON i.id = o.id 
+WHERE i.indid < 2  AND OBJECTPROPERTY(o.id, 'IsMSShipped') = 0
+ORDER BY I.rowcnt DESC
