@@ -24,8 +24,15 @@ GO
 USE master
 GO
 
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+SET ARITHABORT ON
+SET CONCAT_NULL_YIELDS_NULL ON
+SET QUOTED_IDENTIFIER ON
+
 DECLARE @memory_usage FLOAT
-    , @cpu_usage FLOAT
+DECLARE @cpu_usage FLOAT
 
 SET @memory_usage = ( SELECT    1.0 - ( available_physical_memory_kb / ( total_physical_memory_kb * 1.0 ) ) memory_usage
                         FROM      sys.dm_os_sys_memory
