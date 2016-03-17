@@ -1,5 +1,5 @@
 # journey-SQL
 ####Scripts DBMS
-####SQLServer
-####PostgreSQL
-####PostgreSQL
+#####SQLServer
+#####PostgreSQL
+#####Oracle
