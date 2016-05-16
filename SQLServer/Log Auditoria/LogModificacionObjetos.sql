@@ -1,10 +1,10 @@
-USE master
+USE AUDITORIA
 GO
 
 /****** 1. Creación de Tabla ******/
 
-/****** Object:  Table [dbo].[AlterLog]    Script Date: 16/05/2016 09:50:11 a.m. ******/
-CREATE TABLE [dbo].[AlterLog](
+/****** Object:  Table [dbo].[LogObjetos]    Script Date: 16/05/2016 09:50:11 a.m. ******/
+CREATE TABLE [dbo].[LogObjetos](
 	[Id] [bigint] IDENTITY(1,1) NOT NULL,
 	[EventType] [varchar](50) NULL,
 	[ObjectName] [varchar](256) NULL,
@@ -28,6 +28,9 @@ CREATE TABLE [dbo].[AlterLog](
 GO
 
 /****** 2. Creación de Trigger ******/
+
+USE master
+GO
 
 /****** Object:  DdlTrigger [AlterObject]    Script Date: 16/05/2016 09:48:20 a.m. ******/
 SET ANSI_NULLS ON
@@ -68,9 +71,7 @@ BEGIN
 SET @IPC = '127.0.0.1'
 END
 
-# Verificar nombre de base de datos
-
-INSERT INTO AuditBD.dbo.AlterLog(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, IPAddress, ProgramName, IPAddressClient)
+INSERT INTO AUDITORIA.dbo.LogObjetos(EventTime, EventType, ObjectName, ObjectType, TSQLCommand, LoginName, ServerName, DatabaseName, SchemaName, HostName, IPAddress, ProgramName, IPAddressClient)
 VALUES(GETDATE(),
 @data.value('(/EVENT_INSTANCE/EventType)[1]', 'varchar(50)'), 
 @data.value('(/EVENT_INSTANCE/ObjectName)[1]', 'varchar(256)'), 
@@ -108,4 +109,3 @@ GO
 
 ENABLE TRIGGER [AlterObject] ON ALL SERVER
 GO
-
