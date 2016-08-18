@@ -1,3 +1,12 @@
+-- Lista de tablas
+
+SELECT table_schema,table_name
+FROM information_schema.tables
+where table_schema='public'
+ORDER BY table_schema,table_name
+
+-- Lista de Tablas y descripciones
+
 SELECT c.relname As tname, CASE WHEN c.relkind = 'v' THEN 'view' ELSE 'table' END As type, 
     pg_get_userbyid(c.relowner) AS towner, t.spcname AS tspace, 
     n.nspname AS sname,  d.description
