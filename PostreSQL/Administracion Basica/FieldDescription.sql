@@ -4,7 +4,7 @@ SELECT *
 FROM information_schema.columns
 WHERE table_schema = 'public'
  -- AND table_name   = 'your_table'
-order by table_name asc
+order by table_name asc, ordinal_position asc
 
 -- Lista de columnas y descripciones
 
