@@ -1,3 +1,9 @@
+-- Lista de funciones
+
+SELECT * FROM pg_proc WHERE PRONAMESPACE=2200
+
+-- Lista de funciones con descripciones
+
 SELECT n.nspname AS schema_name
       ,p.proname AS function_name,
       --,pg_get_function_arguments(p.oid) AS args
