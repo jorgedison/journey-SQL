@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.2
--- Dumped by pg_dump version 9.5.1
+-- Dumped from database version 9.5.4
+-- Dumped by pg_dump version 9.5.4
 
--- Started on 2016-11-08 17:50:56
+-- Started on 2016-11-08 15:53:13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -16,8 +16,8 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 3533 (class 1262 OID 16386)
--- Dependencies: 3532
+-- TOC entry 2582 (class 1262 OID 83359)
+-- Dependencies: 2581
 -- Name: VRS_BASE_OPERATION; Type: COMMENT; Schema: -; Owner: -
 --
 
@@ -25,7 +25,7 @@ COMMENT ON DATABASE "VRS_BASE_OPERATION" IS 'Database VRS_BASE_OPERATION';
 
 
 --
--- TOC entry 1 (class 3079 OID 13223)
+-- TOC entry 1 (class 3079 OID 12355)
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -33,7 +33,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 3536 (class 0 OID 0)
+-- TOC entry 2585 (class 0 OID 0)
 -- Dependencies: 1
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
 --
@@ -42,7 +42,7 @@ COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- TOC entry 2 (class 3079 OID 152500)
+-- TOC entry 2 (class 3079 OID 83360)
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -50,7 +50,7 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 
 
 --
--- TOC entry 3537 (class 0 OID 0)
+-- TOC entry 2586 (class 0 OID 0)
 -- Dependencies: 2
 -- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
 --
@@ -61,7 +61,7 @@ COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQ
 SET search_path = public, pg_catalog;
 
 --
--- TOC entry 428 (class 1255 OID 312140)
+-- TOC entry 278 (class 1255 OID 83367)
 -- Name: report_movementplate(integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -106,7 +106,7 @@ $$;
 
 
 --
--- TOC entry 359 (class 1255 OID 310698)
+-- TOC entry 279 (class 1255 OID 83368)
 -- Name: report_servicesnote(integer, timestamp without time zone, timestamp without time zone, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -162,59 +162,7 @@ $$;
 
 
 --
--- TOC entry 458 (class 1255 OID 516221)
--- Name: report_vehicle(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION report_vehicle() RETURNS refcursor
-    LANGUAGE plpgsql
-    AS $$
-declare p_cursor refcursor :='p_cursor';
---declare p_language integer := p_slanguageid % 140;
-
-/**
- * @param p_scategorytypeid  vehicle category			                  INPUT
- * @param p_sprimarycolourid  colour primary vehicle			          INPUT
- * @param p_ssecondarycolourid  colour secondary vehicle			  INPUT
- * @param p_sstatus  status vehicle		                  		  INPUT
- * @param p_dstartdate   start date request                                       INPUT
- * @param p_dfinishdate  finish date request                                      INPUT
- * @param p_language
- * @return cursor
- * @author  jcondori
- * @version 1.0 jcondori 26/09/2016<BR/> 
- */
-BEGIN
-OPEN p_cursor FOR
-(SELECT 
-	V.vvehiclecode "Code",
-	VC.vdescription "Make",
-	VC1.vdescription "Model",
-	CAST(TRIM(split_part(SP.vdescription,'|', 1)) as character varying) "Colour Primary",
-	CAST(TRIM(split_part(SP1.vdescription,'|', 1)) as character varying) "Colour Secondary",
-	CAST(TRIM(split_part(SP2.vdescription,'|', 1)) as character varying) "Status",
-	V.dinsertdate "Date"
-FROM vehicle V
-	JOIN vehicle_catalog VC ON VC.ivehiclecatalogid = V.imakeid
-	JOIN vehicle_catalog VC1 ON VC1.ivehiclecatalogid = V.imodelid
-	JOIN systemparameter SP ON SP.iparameterid = V.sprimarycolourid
-	JOIN systemparameter SP1 ON SP1.iparameterid = V.ssecondarycolourid
-	JOIN systemparameter SP2 ON SP2.iparameterid = V.sstatus
-	JOIN systemparameter SP3 ON SP3.iparameterid = V.scategorytypeid
-/*WHERE 
-	(p_scategorytypeid = 0 OR V.scategorytypeid = p_scategorytypeid) AND
-	(p_sprimarycolourid = 0 OR V.sprimarycolourid = p_sprimarycolourid) AND
-	(p_ssecondarycolourid = 0 OR V.ssecondarycolourid = p_ssecondarycolourid) AND
-	(p_sstatus = 0 OR V.sstatus = p_sstatus)*/ --AND
-	--(V.dinsertdate BETWEEN p_dstartdate AND p_dfinishdate)
-limit 10 );
-RETURN (p_cursor);
-END;
-$$;
-
-
---
--- TOC entry 457 (class 1255 OID 312806)
+-- TOC entry 280 (class 1255 OID 83369)
 -- Name: report_vehicle(integer, integer, integer, integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -257,16 +205,16 @@ WHERE
 	(p_scategorytypeid = 0 OR V.scategorytypeid = p_scategorytypeid) AND
 	(p_sprimarycolourid = 0 OR V.sprimarycolourid = p_sprimarycolourid) AND
 	(p_ssecondarycolourid = 0 OR V.ssecondarycolourid = p_ssecondarycolourid) AND
-	(p_sstatus = 0 OR V.sstatus = p_sstatus) --AND
-	--(V.dinsertdate BETWEEN p_dstartdate AND p_dfinishdate)
-limit 10 );
+	(p_sstatus = 0 OR V.sstatus = p_sstatus) AND
+	(V.dinsertdate BETWEEN p_dstartdate AND p_dfinishdate)
+);
 RETURN (p_cursor);
 END;
 $$;
 
 
 --
--- TOC entry 383 (class 1255 OID 289833)
+-- TOC entry 281 (class 1255 OID 83370)
 -- Name: usp_admin_schedule_get(integer, smallint, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -305,8 +253,8 @@ $$;
 
 
 --
--- TOC entry 3538 (class 0 OID 0)
--- Dependencies: 383
+-- TOC entry 2587 (class 0 OID 0)
+-- Dependencies: 281
 -- Name: FUNCTION usp_admin_schedule_get(p_ilocationid integer, p_sexaminationtypeid smallint, p_vscheduledate character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -314,7 +262,7 @@ COMMENT ON FUNCTION usp_admin_schedule_get(p_ilocationid integer, p_sexamination
 
 
 --
--- TOC entry 375 (class 1255 OID 288301)
+-- TOC entry 282 (class 1255 OID 83371)
 -- Name: usp_appointment_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -356,8 +304,8 @@ $$;
 
 
 --
--- TOC entry 3539 (class 0 OID 0)
--- Dependencies: 375
+-- TOC entry 2588 (class 0 OID 0)
+-- Dependencies: 282
 -- Name: FUNCTION usp_appointment_get(p_ischeduleid integer, p_iappointmentid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -365,7 +313,7 @@ COMMENT ON FUNCTION usp_appointment_get(p_ischeduleid integer, p_iappointmentid 
 
 
 --
--- TOC entry 396 (class 1255 OID 288118)
+-- TOC entry 284 (class 1255 OID 83372)
 -- Name: usp_appointment_maintenance(integer, integer, integer, character varying, smallint, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -473,8 +421,8 @@ $$;
 
 
 --
--- TOC entry 3540 (class 0 OID 0)
--- Dependencies: 396
+-- TOC entry 2589 (class 0 OID 0)
+-- Dependencies: 284
 -- Name: FUNCTION usp_appointment_maintenance(INOUT p_iappointmentid integer, p_ischeduleid integer, p_ipartyid integer, p_vcancellationnote character varying, p_sresultexaminationid smallint, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -482,7 +430,7 @@ COMMENT ON FUNCTION usp_appointment_maintenance(INOUT p_iappointmentid integer, 
 
 
 --
--- TOC entry 445 (class 1255 OID 286105)
+-- TOC entry 285 (class 1255 OID 83373)
 -- Name: usp_calculator_payment(integer, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -519,8 +467,8 @@ $$;
 
 
 --
--- TOC entry 3541 (class 0 OID 0)
--- Dependencies: 445
+-- TOC entry 2590 (class 0 OID 0)
+-- Dependencies: 285
 -- Name: FUNCTION usp_calculator_payment(p_ipaymentid integer, p_ipartyid integer, p_vstatusrequest character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -528,7 +476,7 @@ COMMENT ON FUNCTION usp_calculator_payment(p_ipaymentid integer, p_ipartyid inte
 
 
 --
--- TOC entry 386 (class 1255 OID 22046)
+-- TOC entry 286 (class 1255 OID 83374)
 -- Name: usp_country_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -561,8 +509,8 @@ $$;
 
 
 --
--- TOC entry 3542 (class 0 OID 0)
--- Dependencies: 386
+-- TOC entry 2591 (class 0 OID 0)
+-- Dependencies: 286
 -- Name: FUNCTION usp_country_get(p_scountryid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -570,7 +518,7 @@ COMMENT ON FUNCTION usp_country_get(p_scountryid integer) IS 'Stored procedure r
 
 
 --
--- TOC entry 403 (class 1255 OID 87725)
+-- TOC entry 287 (class 1255 OID 83375)
 -- Name: usp_country_maintenance(character varying, integer, character varying, character varying, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -633,8 +581,8 @@ $$;
 
 
 --
--- TOC entry 3543 (class 0 OID 0)
--- Dependencies: 403
+-- TOC entry 2592 (class 0 OID 0)
+-- Dependencies: 287
 -- Name: FUNCTION usp_country_maintenance(p_voption character varying, INOUT p_scountryid integer, p_vcountrycode character varying, p_vname character varying, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -642,7 +590,7 @@ COMMENT ON FUNCTION usp_country_maintenance(p_voption character varying, INOUT p
 
 
 --
--- TOC entry 362 (class 1255 OID 238542)
+-- TOC entry 288 (class 1255 OID 83376)
 -- Name: usp_document_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -668,8 +616,8 @@ $$;
 
 
 --
--- TOC entry 3544 (class 0 OID 0)
--- Dependencies: 362
+-- TOC entry 2593 (class 0 OID 0)
+-- Dependencies: 288
 -- Name: FUNCTION usp_document_get(p_idocumentid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -677,7 +625,7 @@ COMMENT ON FUNCTION usp_document_get(p_idocumentid integer) IS 'Stored procedure
 
 
 --
--- TOC entry 376 (class 1255 OID 238713)
+-- TOC entry 289 (class 1255 OID 83377)
 -- Name: usp_document_maintenance(integer, character varying, character varying, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -772,8 +720,8 @@ $$;
 
 
 --
--- TOC entry 3545 (class 0 OID 0)
--- Dependencies: 376
+-- TOC entry 2594 (class 0 OID 0)
+-- Dependencies: 289
 -- Name: FUNCTION usp_document_maintenance(INOUT p_idocumentid integer, p_vdocumentcode character varying, p_vname character varying, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -781,7 +729,7 @@ COMMENT ON FUNCTION usp_document_maintenance(INOUT p_idocumentid integer, p_vdoc
 
 
 --
--- TOC entry 392 (class 1255 OID 96564)
+-- TOC entry 283 (class 1255 OID 83378)
 -- Name: usp_exchangerate_get(smallint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -814,8 +762,8 @@ $$;
 
 
 --
--- TOC entry 3546 (class 0 OID 0)
--- Dependencies: 392
+-- TOC entry 2595 (class 0 OID 0)
+-- Dependencies: 283
 -- Name: FUNCTION usp_exchangerate_get(p_scurrencyid smallint); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -823,7 +771,7 @@ COMMENT ON FUNCTION usp_exchangerate_get(p_scurrencyid smallint) IS 'Stored proc
 
 
 --
--- TOC entry 361 (class 1255 OID 280840)
+-- TOC entry 290 (class 1255 OID 83379)
 -- Name: usp_indicador_cost(integer, integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -917,7 +865,7 @@ $$;
 
 
 --
--- TOC entry 455 (class 1255 OID 504640)
+-- TOC entry 291 (class 1255 OID 83380)
 -- Name: usp_insert_data_copyrequest(integer, integer, smallint, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1053,7 +1001,7 @@ $$;
 
 
 --
--- TOC entry 409 (class 1255 OID 119299)
+-- TOC entry 292 (class 1255 OID 83382)
 -- Name: usp_inspector_get(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1083,8 +1031,8 @@ $$;
 
 
 --
--- TOC entry 3547 (class 0 OID 0)
--- Dependencies: 409
+-- TOC entry 2596 (class 0 OID 0)
+-- Dependencies: 292
 -- Name: FUNCTION usp_inspector_get(); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1092,7 +1040,7 @@ COMMENT ON FUNCTION usp_inspector_get() IS 'Stored procedure returns a list of i
 
 
 --
--- TOC entry 429 (class 1255 OID 207760)
+-- TOC entry 293 (class 1255 OID 83383)
 -- Name: usp_location_get(integer, integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1185,8 +1133,8 @@ $$;
 
 
 --
--- TOC entry 3548 (class 0 OID 0)
--- Dependencies: 429
+-- TOC entry 2597 (class 0 OID 0)
+-- Dependencies: 293
 -- Name: FUNCTION usp_location_get(p_ilocationid integer, p_itypelocationid integer, p_slevelid integer, p_scountryid integer, p_ireferenceid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1194,7 +1142,7 @@ COMMENT ON FUNCTION usp_location_get(p_ilocationid integer, p_itypelocationid in
 
 
 --
--- TOC entry 442 (class 1255 OID 445607)
+-- TOC entry 294 (class 1255 OID 83384)
 -- Name: usp_location_getall(integer, integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1288,7 +1236,7 @@ $$;
 
 
 --
--- TOC entry 406 (class 1255 OID 87864)
+-- TOC entry 295 (class 1255 OID 83385)
 -- Name: usp_location_maintenance(character varying, integer, integer, integer, integer, character varying, integer, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1366,8 +1314,8 @@ $$;
 
 
 --
--- TOC entry 3549 (class 0 OID 0)
--- Dependencies: 406
+-- TOC entry 2598 (class 0 OID 0)
+-- Dependencies: 295
 -- Name: FUNCTION usp_location_maintenance(p_voption character varying, INOUT p_ilocationid integer, p_slocationtypeid integer, p_slevelid integer, p_scountryid integer, p_vdescription character varying, p_ireferenceid integer, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1375,7 +1323,7 @@ COMMENT ON FUNCTION usp_location_maintenance(p_voption character varying, INOUT 
 
 
 --
--- TOC entry 365 (class 1255 OID 241286)
+-- TOC entry 296 (class 1255 OID 83386)
 -- Name: usp_note(integer, integer, integer, integer, smallint, smallint, character varying, integer, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1450,7 +1398,7 @@ $$;
 
 
 --
--- TOC entry 434 (class 1255 OID 445991)
+-- TOC entry 297 (class 1255 OID 83387)
 -- Name: usp_note_detail_get(integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1505,7 +1453,7 @@ $$;
 
 
 --
--- TOC entry 443 (class 1255 OID 445720)
+-- TOC entry 298 (class 1255 OID 83388)
 -- Name: usp_note_get(integer, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1590,7 +1538,7 @@ $$;
 
 
 --
--- TOC entry 419 (class 1255 OID 279627)
+-- TOC entry 299 (class 1255 OID 83389)
 -- Name: usp_note_maintenance(integer, integer, integer, integer, smallint, character varying, character varying, integer, smallint, smallint, integer, character varying, integer, character varying, smallint, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1695,7 +1643,7 @@ $$;
 
 
 --
--- TOC entry 415 (class 1255 OID 273909)
+-- TOC entry 300 (class 1255 OID 83390)
 -- Name: usp_office_examinationtype_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1733,8 +1681,8 @@ $$;
 
 
 --
--- TOC entry 3550 (class 0 OID 0)
--- Dependencies: 415
+-- TOC entry 2599 (class 0 OID 0)
+-- Dependencies: 300
 -- Name: FUNCTION usp_office_examinationtype_get(p_iofficeexaminationtypeid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1742,7 +1690,7 @@ COMMENT ON FUNCTION usp_office_examinationtype_get(p_iofficeexaminationtypeid in
 
 
 --
--- TOC entry 413 (class 1255 OID 273849)
+-- TOC entry 302 (class 1255 OID 83391)
 -- Name: usp_office_examinationtype_maintenance(integer, integer, smallint, smallint, character varying, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1832,8 +1780,8 @@ $$;
 
 
 --
--- TOC entry 3551 (class 0 OID 0)
--- Dependencies: 413
+-- TOC entry 2600 (class 0 OID 0)
+-- Dependencies: 302
 -- Name: FUNCTION usp_office_examinationtype_maintenance(INOUT p_iofficeexaminationtypeid integer, p_ilocationid integer, p_sexaminationtypeid smallint, p_snumberperson smallint, p_vnote character varying, p_sstatus smallint, p_iinsertuserid integer, p_vinserttip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1841,7 +1789,7 @@ COMMENT ON FUNCTION usp_office_examinationtype_maintenance(INOUT p_iofficeexamin
 
 
 --
--- TOC entry 378 (class 1255 OID 247474)
+-- TOC entry 303 (class 1255 OID 83392)
 -- Name: usp_party_codeonlineaccess(integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1879,7 +1827,7 @@ $$;
 
 
 --
--- TOC entry 366 (class 1255 OID 124928)
+-- TOC entry 304 (class 1255 OID 83393)
 -- Name: usp_party_company_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1914,8 +1862,8 @@ $$;
 
 
 --
--- TOC entry 3552 (class 0 OID 0)
--- Dependencies: 366
+-- TOC entry 2601 (class 0 OID 0)
+-- Dependencies: 304
 -- Name: FUNCTION usp_party_company_get(p_icompanyid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -1923,7 +1871,7 @@ COMMENT ON FUNCTION usp_party_company_get(p_icompanyid integer) IS 'Stored proce
 
 
 --
--- TOC entry 402 (class 1255 OID 359958)
+-- TOC entry 305 (class 1255 OID 83394)
 -- Name: usp_party_concessionary_get(character varying, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -1988,7 +1936,7 @@ $$;
 
 
 --
--- TOC entry 408 (class 1255 OID 359971)
+-- TOC entry 306 (class 1255 OID 83395)
 -- Name: usp_party_concessionary_requester_get(character varying, integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2052,7 +2000,7 @@ $$;
 
 
 --
--- TOC entry 374 (class 1255 OID 288132)
+-- TOC entry 307 (class 1255 OID 83396)
 -- Name: usp_party_maintenance(integer, smallint, smallint, smallint, character varying, character varying, character varying, character varying, character varying, character varying, smallint, smallint, integer, character varying, smallint, double precision, timestamp without time zone, boolean, smallint, smallint, boolean, character varying, character varying, character varying, character varying, character varying, boolean, timestamp without time zone, timestamp without time zone, boolean, character varying, character varying, character varying, character varying, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2251,7 +2199,7 @@ $$;
 
 
 --
--- TOC entry 436 (class 1255 OID 439634)
+-- TOC entry 301 (class 1255 OID 83398)
 -- Name: usp_party_search(integer, integer, smallint, character varying, character varying, character varying, character varying, timestamp without time zone, character varying, character varying, smallint, integer, character varying, character varying, integer, integer, character varying, smallint, smallint, integer, character varying, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2449,7 +2397,7 @@ $$;
 
 
 --
--- TOC entry 380 (class 1255 OID 444012)
+-- TOC entry 277 (class 1255 OID 83400)
 -- Name: usp_party_search(integer, integer, smallint, character varying, character varying, character varying, character varying, timestamp without time zone, character varying, character varying, smallint, integer, character varying, character varying, integer, integer, character varying, smallint, smallint, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2650,7 +2598,7 @@ $$;
 
 
 --
--- TOC entry 360 (class 1255 OID 426926)
+-- TOC entry 308 (class 1255 OID 83402)
 -- Name: usp_party_types_get(character varying, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2717,7 +2665,7 @@ $$;
 
 
 --
--- TOC entry 382 (class 1255 OID 21638)
+-- TOC entry 309 (class 1255 OID 83403)
 -- Name: usp_partycom_maintenance(integer, integer, integer, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2804,8 +2752,8 @@ $$;
 
 
 --
--- TOC entry 3553 (class 0 OID 0)
--- Dependencies: 382
+-- TOC entry 2602 (class 0 OID 0)
+-- Dependencies: 309
 -- Name: FUNCTION usp_partycom_maintenance(INOUT p_ipartycompanyid integer, p_ipartyid integer, p_icompanyid integer, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -2813,7 +2761,7 @@ COMMENT ON FUNCTION usp_partycom_maintenance(INOUT p_ipartycompanyid integer, p_
 
 
 --
--- TOC entry 384 (class 1255 OID 21683)
+-- TOC entry 310 (class 1255 OID 83404)
 -- Name: usp_partylocation_maintenance(integer, integer, integer, integer, character varying, character varying, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2905,8 +2853,8 @@ $$;
 
 
 --
--- TOC entry 3554 (class 0 OID 0)
--- Dependencies: 384
+-- TOC entry 2603 (class 0 OID 0)
+-- Dependencies: 310
 -- Name: FUNCTION usp_partylocation_maintenance(INOUT p_ipartylocationid integer, p_ipartyid integer, p_ilocationid integer, p_ipartylocationtypeid integer, p_vstreet character varying, p_vinformation character varying, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -2914,7 +2862,7 @@ COMMENT ON FUNCTION usp_partylocation_maintenance(INOUT p_ipartylocationid integ
 
 
 --
--- TOC entry 387 (class 1255 OID 352866)
+-- TOC entry 311 (class 1255 OID 83405)
 -- Name: usp_payment_detail_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -2962,7 +2910,7 @@ $$;
 
 
 --
--- TOC entry 393 (class 1255 OID 96676)
+-- TOC entry 312 (class 1255 OID 83406)
 -- Name: usp_payment_detail_maintenance(integer, integer, smallint, smallint, smallint, integer, double precision, double precision, double precision, integer, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3079,8 +3027,8 @@ $$;
 
 
 --
--- TOC entry 3555 (class 0 OID 0)
--- Dependencies: 393
+-- TOC entry 2604 (class 0 OID 0)
+-- Dependencies: 312
 -- Name: FUNCTION usp_payment_detail_maintenance(INOUT p_ipayment_detailid integer, p_ipaymentid integer, p_smethodpaymentid smallint, p_scurrencyid smallint, p_sbanktypeid smallint, p_ichequenumber integer, p_fpricecost double precision, p_fpricetax double precision, p_fpricetotal double precision, p_iexchangerateid integer, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3088,7 +3036,7 @@ COMMENT ON FUNCTION usp_payment_detail_maintenance(INOUT p_ipayment_detailid int
 
 
 --
--- TOC entry 400 (class 1255 OID 81234)
+-- TOC entry 313 (class 1255 OID 83407)
 -- Name: usp_payment_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3123,8 +3071,8 @@ $$;
 
 
 --
--- TOC entry 3556 (class 0 OID 0)
--- Dependencies: 400
+-- TOC entry 2605 (class 0 OID 0)
+-- Dependencies: 313
 -- Name: FUNCTION usp_payment_get(p_ipaymentid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3132,7 +3080,7 @@ COMMENT ON FUNCTION usp_payment_get(p_ipaymentid integer) IS 'Stored procedure r
 
 
 --
--- TOC entry 379 (class 1255 OID 21180)
+-- TOC entry 314 (class 1255 OID 83408)
 -- Name: usp_payment_maintenance(integer, character varying, timestamp without time zone, double precision, double precision, double precision, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3210,8 +3158,8 @@ $$;
 
 
 --
--- TOC entry 3557 (class 0 OID 0)
--- Dependencies: 379
+-- TOC entry 2606 (class 0 OID 0)
+-- Dependencies: 314
 -- Name: FUNCTION usp_payment_maintenance(INOUT p_ipaymentid integer, p_vreceiptnumber character varying, p_dpaymentdate timestamp without time zone, p_fpricecost double precision, p_fpricetax double precision, p_fpricetotal double precision, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3219,7 +3167,7 @@ COMMENT ON FUNCTION usp_payment_maintenance(INOUT p_ipaymentid integer, p_vrecei
 
 
 --
--- TOC entry 430 (class 1255 OID 207555)
+-- TOC entry 315 (class 1255 OID 83409)
 -- Name: usp_pricing_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3268,8 +3216,8 @@ $$;
 
 
 --
--- TOC entry 3558 (class 0 OID 0)
--- Dependencies: 430
+-- TOC entry 2607 (class 0 OID 0)
+-- Dependencies: 315
 -- Name: FUNCTION usp_pricing_get(p_spricingid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3277,7 +3225,7 @@ COMMENT ON FUNCTION usp_pricing_get(p_spricingid integer, p_slanguageid integer)
 
 
 --
--- TOC entry 367 (class 1255 OID 21179)
+-- TOC entry 316 (class 1255 OID 83410)
 -- Name: usp_pricing_maintenance(character varying, integer, integer, smallint, character varying, smallint, double precision, double precision, double precision, smallint, timestamp without time zone, timestamp without time zone, boolean, smallint, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3386,8 +3334,8 @@ $$;
 
 
 --
--- TOC entry 3559 (class 0 OID 0)
--- Dependencies: 367
+-- TOC entry 2608 (class 0 OID 0)
+-- Dependencies: 316
 -- Name: FUNCTION usp_pricing_maintenance(p_voption character varying, INOUT p_ipricingid integer, p_ilocationid integer, p_spricingtypeid smallint, p_vdescription character varying, p_scurrencyid smallint, p_fpricecost double precision, p_fpricetax double precision, p_fpricetotal double precision, p_sduration smallint, p_dstartdate timestamp without time zone, p_dfinishdate timestamp without time zone, p_bvisible boolean, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3395,7 +3343,7 @@ COMMENT ON FUNCTION usp_pricing_maintenance(p_voption character varying, INOUT p
 
 
 --
--- TOC entry 424 (class 1255 OID 172996)
+-- TOC entry 317 (class 1255 OID 83411)
 -- Name: usp_printer_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3422,8 +3370,8 @@ $$;
 
 
 --
--- TOC entry 3560 (class 0 OID 0)
--- Dependencies: 424
+-- TOC entry 2609 (class 0 OID 0)
+-- Dependencies: 317
 -- Name: FUNCTION usp_printer_get(p_iprinterid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3431,7 +3379,7 @@ COMMENT ON FUNCTION usp_printer_get(p_iprinterid integer) IS 'Stored procedure r
 
 
 --
--- TOC entry 420 (class 1255 OID 302341)
+-- TOC entry 319 (class 1255 OID 83412)
 -- Name: usp_printer_maintenance(integer, integer, character varying, character varying, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3517,7 +3465,7 @@ $$;
 
 
 --
--- TOC entry 417 (class 1255 OID 302340)
+-- TOC entry 320 (class 1255 OID 83413)
 -- Name: usp_printeruser_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3553,7 +3501,7 @@ $$;
 
 
 --
--- TOC entry 426 (class 1255 OID 123019)
+-- TOC entry 321 (class 1255 OID 83414)
 -- Name: usp_printeruser_maintenance(integer, integer, integer, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3631,8 +3579,8 @@ $$;
 
 
 --
--- TOC entry 3561 (class 0 OID 0)
--- Dependencies: 426
+-- TOC entry 2610 (class 0 OID 0)
+-- Dependencies: 321
 -- Name: FUNCTION usp_printeruser_maintenance(INOUT p_iprinteruserid integer, p_isystemuserid integer, p_iprinterid integer, p_sstatus integer, p_iinsertuserid integer, p_vinserttip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3640,7 +3588,7 @@ COMMENT ON FUNCTION usp_printeruser_maintenance(INOUT p_iprinteruserid integer, 
 
 
 --
--- TOC entry 423 (class 1255 OID 307449)
+-- TOC entry 322 (class 1255 OID 83415)
 -- Name: usp_procedure_demo(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3656,7 +3604,7 @@ CREATE FUNCTION usp_procedure_demo(id integer) RETURNS refcursor
 
 
 --
--- TOC entry 370 (class 1255 OID 245300)
+-- TOC entry 323 (class 1255 OID 83416)
 -- Name: usp_product_composition_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3697,8 +3645,8 @@ $$;
 
 
 --
--- TOC entry 3562 (class 0 OID 0)
--- Dependencies: 370
+-- TOC entry 2611 (class 0 OID 0)
+-- Dependencies: 323
 -- Name: FUNCTION usp_product_composition_get(p_iproductcompositionid integer, p_iproductid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3706,7 +3654,7 @@ COMMENT ON FUNCTION usp_product_composition_get(p_iproductcompositionid integer,
 
 
 --
--- TOC entry 368 (class 1255 OID 243038)
+-- TOC entry 324 (class 1255 OID 83417)
 -- Name: usp_product_composition_maintenance(character varying, integer, integer, integer, double precision, boolean, smallint, boolean, smallint, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3787,8 +3735,8 @@ $$;
 
 
 --
--- TOC entry 3563 (class 0 OID 0)
--- Dependencies: 368
+-- TOC entry 2612 (class 0 OID 0)
+-- Dependencies: 324
 -- Name: FUNCTION usp_product_composition_maintenance(p_voption character varying, INOUT p_iproductcompositionid integer, p_iproductid integer, p_icomponentid integer, p_fquantity double precision, p_bvisible boolean, p_sorder smallint, p_boptional boolean, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3796,7 +3744,7 @@ COMMENT ON FUNCTION usp_product_composition_maintenance(p_voption character vary
 
 
 --
--- TOC entry 399 (class 1255 OID 244580)
+-- TOC entry 318 (class 1255 OID 83418)
 -- Name: usp_product_document_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3835,8 +3783,8 @@ $$;
 
 
 --
--- TOC entry 3564 (class 0 OID 0)
--- Dependencies: 399
+-- TOC entry 2613 (class 0 OID 0)
+-- Dependencies: 318
 -- Name: FUNCTION usp_product_document_get(p_iproductdocumentid integer, p_iproductid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -3844,7 +3792,7 @@ COMMENT ON FUNCTION usp_product_document_get(p_iproductdocumentid integer, p_ipr
 
 
 --
--- TOC entry 444 (class 1255 OID 479015)
+-- TOC entry 325 (class 1255 OID 83419)
 -- Name: usp_product_document_get(integer, integer, smallint, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3920,7 +3868,7 @@ $$;
 
 
 --
--- TOC entry 369 (class 1255 OID 244281)
+-- TOC entry 326 (class 1255 OID 83420)
 -- Name: usp_product_document_maintenance(character varying, integer, integer, integer, smallint, boolean, smallint, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -3993,8 +3941,8 @@ $$;
 
 
 --
--- TOC entry 3565 (class 0 OID 0)
--- Dependencies: 369
+-- TOC entry 2614 (class 0 OID 0)
+-- Dependencies: 326
 -- Name: FUNCTION usp_product_document_maintenance(p_voption character varying, INOUT p_iproductdocumentid integer, p_iproductid integer, p_idocumentid integer, p_sdocumenttypeid smallint, p_bmandatory boolean, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4002,7 +3950,7 @@ COMMENT ON FUNCTION usp_product_document_maintenance(p_voption character varying
 
 
 --
--- TOC entry 435 (class 1255 OID 449689)
+-- TOC entry 327 (class 1255 OID 83421)
 -- Name: usp_product_get(integer, smallint, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4080,7 +4028,7 @@ $$;
 
 
 --
--- TOC entry 363 (class 1255 OID 238833)
+-- TOC entry 328 (class 1255 OID 83422)
 -- Name: usp_product_maintenance(integer, smallint, smallint, smallint, smallint, character varying, character varying, timestamp without time zone, timestamp without time zone, boolean, character varying, smallint, boolean, boolean, boolean, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4252,8 +4200,8 @@ $$;
 
 
 --
--- TOC entry 3566 (class 0 OID 0)
--- Dependencies: 363
+-- TOC entry 2615 (class 0 OID 0)
+-- Dependencies: 328
 -- Name: FUNCTION usp_product_maintenance(INOUT p_iproductid integer, p_sproducttypeid smallint, p_sproductuseid smallint, p_sproductcategoryid smallint, p_sproductscopeid smallint, p_vdescription character varying, p_vproductcode character varying, p_dstartdate timestamp without time zone, p_denddate timestamp without time zone, p_bauthorization boolean, p_vcharacteristics character varying, p_sorder smallint, p_bvisible boolean, p_bconformity boolean, p_bfloating boolean, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4261,7 +4209,7 @@ COMMENT ON FUNCTION usp_product_maintenance(INOUT p_iproductid integer, p_sprodu
 
 
 --
--- TOC entry 372 (class 1255 OID 245515)
+-- TOC entry 329 (class 1255 OID 83424)
 -- Name: usp_product_pricing_get(integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4316,8 +4264,8 @@ $$;
 
 
 --
--- TOC entry 3567 (class 0 OID 0)
--- Dependencies: 372
+-- TOC entry 2616 (class 0 OID 0)
+-- Dependencies: 329
 -- Name: FUNCTION usp_product_pricing_get(p_ipricingid integer, p_iproductid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4325,7 +4273,7 @@ COMMENT ON FUNCTION usp_product_pricing_get(p_ipricingid integer, p_iproductid i
 
 
 --
--- TOC entry 371 (class 1255 OID 245429)
+-- TOC entry 331 (class 1255 OID 83425)
 -- Name: usp_product_pricing_maintenance(character varying, integer, integer, smallint, character varying, smallint, double precision, double precision, double precision, character varying, timestamp without time zone, timestamp without time zone, boolean, smallint, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4431,8 +4379,8 @@ $$;
 
 
 --
--- TOC entry 3568 (class 0 OID 0)
--- Dependencies: 371
+-- TOC entry 2617 (class 0 OID 0)
+-- Dependencies: 331
 -- Name: FUNCTION usp_product_pricing_maintenance(p_voption character varying, INOUT p_ipricingid integer, p_ilocationid integer, p_spricingtypeid smallint, p_vdescription character varying, p_scurrencyid smallint, p_fpricecost double precision, p_fpricetax double precision, p_fpricetotal double precision, p_vconcept character varying, p_dstartdate timestamp without time zone, p_dfinishdate timestamp without time zone, p_bvisible boolean, p_sstatus smallint, p_iproductid integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4440,7 +4388,7 @@ COMMENT ON FUNCTION usp_product_pricing_maintenance(p_voption character varying,
 
 
 --
--- TOC entry 410 (class 1255 OID 65214)
+-- TOC entry 332 (class 1255 OID 83426)
 -- Name: usp_product_step_get(integer, smallint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4484,8 +4432,8 @@ $$;
 
 
 --
--- TOC entry 3569 (class 0 OID 0)
--- Dependencies: 410
+-- TOC entry 2618 (class 0 OID 0)
+-- Dependencies: 332
 -- Name: FUNCTION usp_product_step_get(p_iproductid integer, p_ssteptypeid smallint); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4493,7 +4441,7 @@ COMMENT ON FUNCTION usp_product_step_get(p_iproductid integer, p_ssteptypeid sma
 
 
 --
--- TOC entry 390 (class 1255 OID 245951)
+-- TOC entry 333 (class 1255 OID 83427)
 -- Name: usp_product_step_maintenance(character varying, integer, integer, smallint, character varying, smallint, integer, smallint, boolean, boolean, character varying, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4591,8 +4539,8 @@ $$;
 
 
 --
--- TOC entry 3570 (class 0 OID 0)
--- Dependencies: 390
+-- TOC entry 2619 (class 0 OID 0)
+-- Dependencies: 333
 -- Name: FUNCTION usp_product_step_maintenance(p_voption character varying, INOUT p_iproductstepid integer, p_iproductid integer, p_ssteptypeid smallint, p_vdescription character varying, p_sorden smallint, p_ireferenceproductstepid integer, p_sstatus smallint, p_bmandatory boolean, p_bvisible boolean, p_vfunctionname character varying, p_ifunctionproductid integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4600,7 +4548,7 @@ COMMENT ON FUNCTION usp_product_step_maintenance(p_voption character varying, IN
 
 
 --
--- TOC entry 364 (class 1255 OID 238842)
+-- TOC entry 334 (class 1255 OID 83428)
 -- Name: usp_productid_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4633,8 +4581,8 @@ $$;
 
 
 --
--- TOC entry 3571 (class 0 OID 0)
--- Dependencies: 364
+-- TOC entry 2620 (class 0 OID 0)
+-- Dependencies: 334
 -- Name: FUNCTION usp_productid_get(p_iproductid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4642,7 +4590,7 @@ COMMENT ON FUNCTION usp_productid_get(p_iproductid integer) IS 'Stored procedure
 
 
 --
--- TOC entry 433 (class 1255 OID 208992)
+-- TOC entry 335 (class 1255 OID 83429)
 -- Name: usp_productpricing_get(character varying, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4723,8 +4671,8 @@ $$;
 
 
 --
--- TOC entry 3572 (class 0 OID 0)
--- Dependencies: 433
+-- TOC entry 2621 (class 0 OID 0)
+-- Dependencies: 335
 -- Name: FUNCTION usp_productpricing_get(p_vproductid character varying, p_iplatetypeid integer, p_icategoryvehicleid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4732,7 +4680,7 @@ COMMENT ON FUNCTION usp_productpricing_get(p_vproductid character varying, p_ipl
 
 
 --
--- TOC entry 373 (class 1255 OID 245949)
+-- TOC entry 330 (class 1255 OID 83430)
 -- Name: usp_productstep_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4775,8 +4723,8 @@ $$;
 
 
 --
--- TOC entry 3573 (class 0 OID 0)
--- Dependencies: 373
+-- TOC entry 2622 (class 0 OID 0)
+-- Dependencies: 330
 -- Name: FUNCTION usp_productstep_get(p_iproductstepid integer, p_iproductid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -4784,7 +4732,7 @@ COMMENT ON FUNCTION usp_productstep_get(p_iproductstepid integer, p_iproductid i
 
 
 --
--- TOC entry 448 (class 1255 OID 487890)
+-- TOC entry 337 (class 1255 OID 83431)
 -- Name: usp_report_movementplate(integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4830,7 +4778,7 @@ $$;
 
 
 --
--- TOC entry 449 (class 1255 OID 487891)
+-- TOC entry 338 (class 1255 OID 83432)
 -- Name: usp_report_servicesnote(integer, timestamp without time zone, timestamp without time zone, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4885,7 +4833,7 @@ $$;
 
 
 --
--- TOC entry 450 (class 1255 OID 487892)
+-- TOC entry 339 (class 1255 OID 83433)
 -- Name: usp_report_vehicle(integer, integer, integer, integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -4938,7 +4886,7 @@ $$;
 
 
 --
--- TOC entry 388 (class 1255 OID 466275)
+-- TOC entry 340 (class 1255 OID 83434)
 -- Name: usp_request_detail_maintenance(integer, integer, integer, integer, integer, smallint, smallint, smallint, integer, integer, integer, character varying, smallint, smallint, timestamp without time zone, timestamp without time zone, character varying, boolean, double precision, double precision, double precision, character varying, character varying, character varying, character varying, smallint, integer, character varying, integer, character varying, character varying, smallint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5115,7 +5063,7 @@ $$;
 
 
 --
--- TOC entry 411 (class 1255 OID 68273)
+-- TOC entry 341 (class 1255 OID 83436)
 -- Name: usp_request_detail_status(integer, smallint, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5145,8 +5093,8 @@ $$;
 
 
 --
--- TOC entry 3574 (class 0 OID 0)
--- Dependencies: 411
+-- TOC entry 2623 (class 0 OID 0)
+-- Dependencies: 341
 -- Name: FUNCTION usp_request_detail_status(p_irequestdetailid integer, p_sstatus smallint, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5154,7 +5102,7 @@ COMMENT ON FUNCTION usp_request_detail_status(p_irequestdetailid integer, p_ssta
 
 
 --
--- TOC entry 453 (class 1255 OID 207764)
+-- TOC entry 342 (class 1255 OID 83437)
 -- Name: usp_request_document_get(integer, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5208,8 +5156,8 @@ $$;
 
 
 --
--- TOC entry 3575 (class 0 OID 0)
--- Dependencies: 453
+-- TOC entry 2624 (class 0 OID 0)
+-- Dependencies: 342
 -- Name: FUNCTION usp_request_document_get(p_ipaymentid integer, p_irequestid integer, p_sdocumenttypeid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5217,7 +5165,7 @@ COMMENT ON FUNCTION usp_request_document_get(p_ipaymentid integer, p_irequestid 
 
 
 --
--- TOC entry 418 (class 1255 OID 88542)
+-- TOC entry 336 (class 1255 OID 83438)
 -- Name: usp_request_document_maintenance(integer, integer, integer, character varying, character varying, timestamp without time zone, boolean, timestamp without time zone, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5337,8 +5285,8 @@ $$;
 
 
 --
--- TOC entry 3576 (class 0 OID 0)
--- Dependencies: 418
+-- TOC entry 2625 (class 0 OID 0)
+-- Dependencies: 336
 -- Name: FUNCTION usp_request_document_maintenance(INOUT p_irequestdocument integer, p_irequestdetailid integer, p_idocumentid integer, p_vfilename character varying, p_vfilepath character varying, p_dissuedate timestamp without time zone, p_bprint boolean, p_dprint timestamp without time zone, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5346,7 +5294,7 @@ COMMENT ON FUNCTION usp_request_document_maintenance(INOUT p_irequestdocument in
 
 
 --
--- TOC entry 438 (class 1255 OID 77029)
+-- TOC entry 343 (class 1255 OID 83440)
 -- Name: usp_request_document_output(integer, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5389,8 +5337,8 @@ $$;
 
 
 --
--- TOC entry 3577 (class 0 OID 0)
--- Dependencies: 438
+-- TOC entry 2626 (class 0 OID 0)
+-- Dependencies: 343
 -- Name: FUNCTION usp_request_document_output(p_ipaymentid integer, p_iinsertuserid integer, p_vinsertip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5398,7 +5346,7 @@ COMMENT ON FUNCTION usp_request_document_output(p_ipaymentid integer, p_iinsertu
 
 
 --
--- TOC entry 432 (class 1255 OID 207765)
+-- TOC entry 344 (class 1255 OID 83441)
 -- Name: usp_request_get(integer, smallint, integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5450,8 +5398,8 @@ $$;
 
 
 --
--- TOC entry 3578 (class 0 OID 0)
--- Dependencies: 432
+-- TOC entry 2627 (class 0 OID 0)
+-- Dependencies: 344
 -- Name: FUNCTION usp_request_get(p_irequestid integer, p_sstatus smallint, p_iproductid integer, p_dstartdate timestamp without time zone, p_dfinishdate timestamp without time zone, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5459,7 +5407,7 @@ COMMENT ON FUNCTION usp_request_get(p_irequestid integer, p_sstatus smallint, p_
 
 
 --
--- TOC entry 398 (class 1255 OID 20233)
+-- TOC entry 345 (class 1255 OID 83442)
 -- Name: usp_request_histo_maintenance(integer, integer, character varying, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5520,8 +5468,8 @@ $$;
 
 
 --
--- TOC entry 3579 (class 0 OID 0)
--- Dependencies: 398
+-- TOC entry 2628 (class 0 OID 0)
+-- Dependencies: 345
 -- Name: FUNCTION usp_request_histo_maintenance(INOUT p_irequesthistoryid integer, p_irequestid integer, p_vobservation character varying, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5529,7 +5477,7 @@ COMMENT ON FUNCTION usp_request_histo_maintenance(INOUT p_irequesthistoryid inte
 
 
 --
--- TOC entry 427 (class 1255 OID 378341)
+-- TOC entry 346 (class 1255 OID 83443)
 -- Name: usp_request_history_get(integer, integer, timestamp without time zone, timestamp without time zone, character varying, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5588,7 +5536,7 @@ $$;
 
 
 --
--- TOC entry 401 (class 1255 OID 143258)
+-- TOC entry 347 (class 1255 OID 83444)
 -- Name: usp_request_information(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5625,8 +5573,8 @@ $$;
 
 
 --
--- TOC entry 3580 (class 0 OID 0)
--- Dependencies: 401
+-- TOC entry 2629 (class 0 OID 0)
+-- Dependencies: 347
 -- Name: FUNCTION usp_request_information(p_iproductid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5634,7 +5582,7 @@ COMMENT ON FUNCTION usp_request_information(p_iproductid integer) IS 'Stored pro
 
 
 --
--- TOC entry 441 (class 1255 OID 282479)
+-- TOC entry 348 (class 1255 OID 83445)
 -- Name: usp_request_license_maintenance(integer, smallint, smallint, timestamp without time zone, timestamp without time zone, timestamp without time zone, timestamp without time zone, character varying, smallint, character varying, character varying, character varying, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5742,8 +5690,8 @@ $$;
 
 
 --
--- TOC entry 3581 (class 0 OID 0)
--- Dependencies: 441
+-- TOC entry 2630 (class 0 OID 0)
+-- Dependencies: 348
 -- Name: FUNCTION usp_request_license_maintenance(INOUT p_irequestlicenseid integer, p_slicensetypeid smallint, p_sdurationlicense smallint, p_dstartdate timestamp without time zone, p_dexpirydate timestamp without time zone, p_dnewstartdate timestamp without time zone, p_dnewenddate timestamp without time zone, p_vnumberlicense character varying, p_splatetypeid smallint, p_vnumberplate character varying, p_vplatepreview character varying, p_vcomment character varying, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -5751,7 +5699,7 @@ COMMENT ON FUNCTION usp_request_license_maintenance(INOUT p_irequestlicenseid in
 
 
 --
--- TOC entry 385 (class 1255 OID 466226)
+-- TOC entry 349 (class 1255 OID 83446)
 -- Name: usp_request_maintenance(integer, integer, integer, integer, integer, boolean, smallint, timestamp without time zone, timestamp without time zone, integer, boolean, integer, character varying, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5860,7 +5808,7 @@ $$;
 
 
 --
--- TOC entry 381 (class 1255 OID 355750)
+-- TOC entry 350 (class 1255 OID 83448)
 -- Name: usp_request_party_search(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -5904,7 +5852,7 @@ $$;
 
 
 --
--- TOC entry 456 (class 1255 OID 507128)
+-- TOC entry 351 (class 1255 OID 83449)
 -- Name: usp_request_product_get(integer, smallint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6002,7 +5950,7 @@ $$;
 
 
 --
--- TOC entry 459 (class 1255 OID 518695)
+-- TOC entry 352 (class 1255 OID 83450)
 -- Name: usp_request_status_case_get(integer, smallint, integer, timestamp without time zone, timestamp without time zone, integer, smallint, character varying, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6024,19 +5972,6 @@ declare p_language integer := p_slanguageid % 140;
  */
 begin
 IF (p_language is null or p_language = 0) THEN p_language := 1; END IF;
-
-
-create temp table tbltmp_note (dinsertdate timestamp without time zone, inoteid integer, vtabname character varying(100), 
-		               irequestdetailid integer, snotesubcategoryid smallint, vobservation character varying(300),irequestid integer) on commit drop;
-
-INSERT INTO tbltmp_note 
-select no.dinsertdate,no.inoteid,no.vtabname,no.irequestdetailid,no.snotesubcategoryid,no.vobservation,r.irequestid from note no 
-inner join request_detail rd on no.irequestdetailid = rd.irequestdetailid
-inner join request r on r.irequestid = rd.irequestid	
-where no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid
-						   order by no.dinsertdate desc)
-and (CASE WHEN r.dupdatedate is null then (r.dinsertdate between p_dstartdate and p_dfinishdate) else 
-			r.dupdatedate between p_dstartdate and p_dfinishdate end);
 
 create temp table tbltmp_requestlicense (irequestlicenseid integer, irequestid integer, irequestdetailid integer, 
 slicensetypeid smallint, vnumberplate character varying(12))on commit drop;
@@ -6068,7 +6003,12 @@ where (r.dinsertdate between p_dstartdate and p_dfinishdate);
 		then TO_TIMESTAMP(cast(r.dstartdate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp 
 		else TO_TIMESTAMP(cast(r.dfinishdate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp end		
 		)as dstartdate,*/
-		COALESCE((TO_TIMESTAMP(cast(no.dinsertdate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp),(CASE WHEN r.dupdatedate is null then 
+		COALESCE((select TO_TIMESTAMP(cast(no.dinsertdate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp from request_detail rd 
+						inner join note no on 
+						no.irequestdetailid = rd.irequestdetailid
+						where rd.irequestid = r.irequestid 
+						   AND no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid) 
+						limit 1),(CASE WHEN r.dupdatedate is null then 
 			COALESCE((TO_TIMESTAMP(cast(r.dinsertdate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp),null) 
 			else 
 			COALESCE((TO_TIMESTAMP(cast(r.dupdatedate as text), 'YYYY/MM/DD HH24:MI:SS')::timestamp),null)	
@@ -6080,18 +6020,41 @@ where (r.dinsertdate between p_dstartdate and p_dfinishdate);
 		par.vorganization,
 		CASE WHEN COALESCE(par.vorganization, '') = '' THEN COALESCE(par.vlastname, '') || ' ' ||  COALESCE(par.vfirstname, '') || ' ' || COALESCE(par.vmiddlename, '') || ' ' || COALESCE(par.vmaidenname,'') ELSE par.vorganization END vname,
 		p.vproductcode,
-		COALESCE(no.vtabname,r.vtabname) as vtabname, --muestra el ultimo tab donde se quedo
+		COALESCE((select no.vtabname from request_detail rd 
+						inner join note no on 
+						no.irequestdetailid = rd.irequestdetailid
+						where rd.irequestid = r.irequestid 
+						   AND no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid) 
+						   order by no.dinsertdate desc
+						limit 1),(r.vtabname))	as vtabname, --muestra el ultimo tab donde se quedo
 		cast(trim(split_part(sp1.vdescription,'|', p_language)) as character varying) as vstatusname,
-		COALESCE(no.irequestdetailid,COALESCE((select rd.irequestdetailid from request_detail rd 
+		COALESCE((select rd.irequestdetailid from request_detail rd 
+						inner join note no on 
+						no.irequestdetailid = rd.irequestdetailid
+						where rd.irequestid = r.irequestid 
+						   AND no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid) 
+						   order by no.dinsertdate desc
+						limit 1),COALESCE((select rd.irequestdetailid from request_detail rd 
 						where rd.irequestid = r.irequestid 
 						limit 1),0)
-						)	as irequestdetailid, --muestra el ultimo tab donde se quedo
-		COALESCE(no.snotesubcategoryid,0)	as snotesubcategoryid, --muestra la categoria de la nota
-		COALESCE(no.vobservation,'')	as vobservationnote,
-	        COALESCE((select rd.iownerid from request_detail rd where rd.irequestid=r.irequestid limit 1),0) as iownerid,
+						)	as irequestdetailid, --muestra el ultimo tab donde se quedo   
+		COALESCE((select no.snotesubcategoryid from request_detail rd 
+						inner join note no on 
+						no.irequestdetailid = rd.irequestdetailid
+						where rd.irequestid = r.irequestid 
+						   AND no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid) 
+						   order by no.dinsertdate desc
+						limit 1),0)	as snotesubcategoryid, --muestra la categoria de la nota
+		COALESCE((select no.vobservation from request_detail rd 
+						inner join note no on 
+						no.irequestdetailid = rd.irequestdetailid
+						where rd.irequestid = r.irequestid 
+						   AND no.dinsertdate = (select max(no1.dinsertdate) from note no1 where no1.irequestdetailid = no.irequestdetailid) 
+						   order by no.dinsertdate desc
+						limit 1),'')	as vobservationnote,
+						COALESCE((select rd.iownerid from request_detail rd where rd.irequestid=r.irequestid limit 1),0) as iownerid,
 		pa.sstatus as sstatuspayment						
-		from request r 	
-		left join tbltmp_note no on r.irequestid = no.irequestid
+		from request r 		
 		inner join product p on p.iproductid=r.iproductid
 		inner join payment pa on pa.ipaymentid=r.ipaymentid
 		inner join systemparameter sp on sp.iparameterid= r.sstatus 
@@ -6116,7 +6079,7 @@ $$;
 
 
 --
--- TOC entry 451 (class 1255 OID 449348)
+-- TOC entry 353 (class 1255 OID 83452)
 -- Name: usp_request_status_menu_get(integer, smallint, integer, timestamp without time zone, timestamp without time zone, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6329,7 +6292,7 @@ $$;
 
 
 --
--- TOC entry 446 (class 1255 OID 485836)
+-- TOC entry 354 (class 1255 OID 83454)
 -- Name: usp_request_status_menu_get2(integer, smallint, integer, timestamp without time zone, timestamp without time zone, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6445,7 +6408,7 @@ $$;
 
 
 --
--- TOC entry 440 (class 1255 OID 388373)
+-- TOC entry 355 (class 1255 OID 83456)
 -- Name: usp_request_user_location(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6512,7 +6475,7 @@ CREATE FUNCTION usp_request_user_location() RETURNS refcursor
 
 
 --
--- TOC entry 454 (class 1255 OID 287941)
+-- TOC entry 356 (class 1255 OID 83457)
 -- Name: usp_requestlicense_get(smallint, smallint, character varying, character varying, smallint, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6580,8 +6543,8 @@ $$;
 
 
 --
--- TOC entry 3582 (class 0 OID 0)
--- Dependencies: 454
+-- TOC entry 2631 (class 0 OID 0)
+-- Dependencies: 356
 -- Name: FUNCTION usp_requestlicense_get(p_slicensetypeid smallint, p_sdocumenttypeid smallint, p_vdocumentnumber character varying, p_vplatenumber character varying, p_sstatus smallint, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6589,7 +6552,7 @@ COMMENT ON FUNCTION usp_requestlicense_get(p_slicensetypeid smallint, p_sdocumen
 
 
 --
--- TOC entry 407 (class 1255 OID 273912)
+-- TOC entry 357 (class 1255 OID 83458)
 -- Name: usp_schedule_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6621,8 +6584,8 @@ $$;
 
 
 --
--- TOC entry 3583 (class 0 OID 0)
--- Dependencies: 407
+-- TOC entry 2632 (class 0 OID 0)
+-- Dependencies: 357
 -- Name: FUNCTION usp_schedule_get(p_iofficeexaminationtypeid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6630,7 +6593,7 @@ COMMENT ON FUNCTION usp_schedule_get(p_iofficeexaminationtypeid integer) IS 'Sto
 
 
 --
--- TOC entry 416 (class 1255 OID 302339)
+-- TOC entry 358 (class 1255 OID 83459)
 -- Name: usp_schedule_maintenance(integer, integer, timestamp without time zone, time without time zone, time without time zone, integer, integer, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6714,8 +6677,8 @@ $$;
 
 
 --
--- TOC entry 3584 (class 0 OID 0)
--- Dependencies: 416
+-- TOC entry 2633 (class 0 OID 0)
+-- Dependencies: 358
 -- Name: FUNCTION usp_schedule_maintenance(INOUT p_ischeduleid integer, p_iofficeexaminationtypeid integer, p_dscheduledate timestamp without time zone, p_ttimeday time without time zone, p_ttimeendday time without time zone, p_sdayofweekid integer, p_ivacant integer, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6723,7 +6686,7 @@ COMMENT ON FUNCTION usp_schedule_maintenance(INOUT p_ischeduleid integer, p_ioff
 
 
 --
--- TOC entry 389 (class 1255 OID 57622)
+-- TOC entry 359 (class 1255 OID 83460)
 -- Name: usp_service_payment_get(integer, smallint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6769,8 +6732,8 @@ $$;
 
 
 --
--- TOC entry 3585 (class 0 OID 0)
--- Dependencies: 389
+-- TOC entry 2634 (class 0 OID 0)
+-- Dependencies: 359
 -- Name: FUNCTION usp_service_payment_get(p_ipaymentid integer, p_sstatus smallint); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6778,7 +6741,7 @@ COMMENT ON FUNCTION usp_service_payment_get(p_ipaymentid integer, p_sstatus smal
 
 
 --
--- TOC entry 431 (class 1255 OID 207767)
+-- TOC entry 360 (class 1255 OID 83461)
 -- Name: usp_systemaudit_get(integer, integer, integer, integer, integer, integer, timestamp without time zone, timestamp without time zone, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6843,8 +6806,8 @@ $$;
 
 
 --
--- TOC entry 3586 (class 0 OID 0)
--- Dependencies: 431
+-- TOC entry 2635 (class 0 OID 0)
+-- Dependencies: 360
 -- Name: FUNCTION usp_systemaudit_get(p_seventtypeid integer, p_sprocessid integer, p_staskid integer, p_sactionid integer, p_sresultid integer, p_iuserid integer, p_dstartdate timestamp without time zone, p_dfinishdate timestamp without time zone, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6852,7 +6815,7 @@ COMMENT ON FUNCTION usp_systemaudit_get(p_seventtypeid integer, p_sprocessid int
 
 
 --
--- TOC entry 414 (class 1255 OID 87814)
+-- TOC entry 361 (class 1255 OID 83462)
 -- Name: usp_systemaudit_maintenance(integer, integer, integer, integer, integer, character varying, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6905,8 +6868,8 @@ $$;
 
 
 --
--- TOC entry 3587 (class 0 OID 0)
--- Dependencies: 414
+-- TOC entry 2636 (class 0 OID 0)
+-- Dependencies: 361
 -- Name: FUNCTION usp_systemaudit_maintenance(p_seventtypeid integer, p_sprocessid integer, p_staskid integer, p_sactionid integer, p_sresultid integer, p_vmessage character varying, p_vhostname character varying, p_iinsertuserid integer, p_vinsertip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6914,7 +6877,7 @@ COMMENT ON FUNCTION usp_systemaudit_maintenance(p_seventtypeid integer, p_sproce
 
 
 --
--- TOC entry 452 (class 1255 OID 205185)
+-- TOC entry 362 (class 1255 OID 83463)
 -- Name: usp_systemparam_get(integer, character varying, character varying, character varying, integer, integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -6973,8 +6936,8 @@ $$;
 
 
 --
--- TOC entry 3588 (class 0 OID 0)
--- Dependencies: 452
+-- TOC entry 2637 (class 0 OID 0)
+-- Dependencies: 362
 -- Name: FUNCTION usp_systemparam_get(p_iparameterid integer, p_vgroupid character varying, p_vvalue character varying, p_vreferenceid character varying, p_svisible integer, p_sstatus integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -6982,7 +6945,7 @@ COMMENT ON FUNCTION usp_systemparam_get(p_iparameterid integer, p_vgroupid chara
 
 
 --
--- TOC entry 394 (class 1255 OID 68446)
+-- TOC entry 363 (class 1255 OID 83464)
 -- Name: usp_systemparam_maintenance(character varying, integer, integer, character varying, character varying, character varying, integer, integer, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7086,8 +7049,8 @@ $$;
 
 
 --
--- TOC entry 3589 (class 0 OID 0)
--- Dependencies: 394
+-- TOC entry 2638 (class 0 OID 0)
+-- Dependencies: 363
 -- Name: FUNCTION usp_systemparam_maintenance(p_voption character varying, p_iparameterid integer, p_igroupid integer, p_vdescription character varying, p_vvalue character varying, p_vreferenceid character varying, p_sorder integer, p_svisible integer, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7095,7 +7058,7 @@ COMMENT ON FUNCTION usp_systemparam_maintenance(p_voption character varying, p_i
 
 
 --
--- TOC entry 397 (class 1255 OID 142824)
+-- TOC entry 364 (class 1255 OID 83465)
 -- Name: usp_top_services(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7146,8 +7109,8 @@ $$;
 
 
 --
--- TOC entry 3590 (class 0 OID 0)
--- Dependencies: 397
+-- TOC entry 2639 (class 0 OID 0)
+-- Dependencies: 364
 -- Name: FUNCTION usp_top_services(p_cant_top integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7155,7 +7118,7 @@ COMMENT ON FUNCTION usp_top_services(p_cant_top integer) IS 'Stored procedure re
 
 
 --
--- TOC entry 377 (class 1255 OID 289801)
+-- TOC entry 365 (class 1255 OID 83466)
 -- Name: usp_tracingrequest(integer, integer, smallint, character varying, integer, character varying, smallint, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7222,8 +7185,8 @@ $$;
 
 
 --
--- TOC entry 3591 (class 0 OID 0)
--- Dependencies: 377
+-- TOC entry 2640 (class 0 OID 0)
+-- Dependencies: 365
 -- Name: FUNCTION usp_tracingrequest(p_ipaymentid integer, p_irequestid integer, p_sdocumenttypeid smallint, p_vdocumentnumber character varying, p_iproductid integer, p_vplatenumber character varying, p_sstatus smallint, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7231,7 +7194,7 @@ COMMENT ON FUNCTION usp_tracingrequest(p_ipaymentid integer, p_irequestid intege
 
 
 --
--- TOC entry 437 (class 1255 OID 388372)
+-- TOC entry 366 (class 1255 OID 83467)
 -- Name: usp_user_location_maintenance(integer, integer, integer, character varying, character varying, smallint, integer, timestamp without time zone, character varying, integer, timestamp without time zone, character varying, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7258,8 +7221,8 @@ $$;
 
 
 --
--- TOC entry 3592 (class 0 OID 0)
--- Dependencies: 437
+-- TOC entry 2641 (class 0 OID 0)
+-- Dependencies: 366
 -- Name: FUNCTION usp_user_location_maintenance(p_iregid integer, p_iuserid integer, p_ilocationid integer, p_vusername character varying, p_vuseraddress character varying, p_sstatus smallint, p_iinsertuserid integer, p_dinsertdate timestamp without time zone, p_vinsertip character varying, p_iupdateuserid integer, p_dupdatedate timestamp without time zone, p_vupdateip character varying, INOUT p_lastid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7267,7 +7230,7 @@ COMMENT ON FUNCTION usp_user_location_maintenance(p_iregid integer, p_iuserid in
 
 
 --
--- TOC entry 439 (class 1255 OID 199235)
+-- TOC entry 367 (class 1255 OID 83468)
 -- Name: usp_vehicle_detail_search(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7371,8 +7334,8 @@ $$;
 
 
 --
--- TOC entry 3593 (class 0 OID 0)
--- Dependencies: 439
+-- TOC entry 2642 (class 0 OID 0)
+-- Dependencies: 367
 -- Name: FUNCTION usp_vehicle_detail_search(p_ivehicleid integer, p_irequestid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7380,7 +7343,7 @@ COMMENT ON FUNCTION usp_vehicle_detail_search(p_ivehicleid integer, p_irequestid
 
 
 --
--- TOC entry 395 (class 1255 OID 357129)
+-- TOC entry 368 (class 1255 OID 83469)
 -- Name: usp_vehicle_inspection_get(integer, integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7420,8 +7383,8 @@ $$;
 
 
 --
--- TOC entry 3594 (class 0 OID 0)
--- Dependencies: 395
+-- TOC entry 2643 (class 0 OID 0)
+-- Dependencies: 368
 -- Name: FUNCTION usp_vehicle_inspection_get(p_ivehicleid integer, p_slanguageid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7429,7 +7392,7 @@ COMMENT ON FUNCTION usp_vehicle_inspection_get(p_ivehicleid integer, p_slanguage
 
 
 --
--- TOC entry 391 (class 1255 OID 357049)
+-- TOC entry 369 (class 1255 OID 83470)
 -- Name: usp_vehicle_inspection_maintenance(integer, integer, smallint, character varying, timestamp without time zone, timestamp without time zone, smallint, integer, boolean, character varying, integer, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7555,8 +7518,8 @@ $$;
 
 
 --
--- TOC entry 3595 (class 0 OID 0)
--- Dependencies: 391
+-- TOC entry 2644 (class 0 OID 0)
+-- Dependencies: 369
 -- Name: FUNCTION usp_vehicle_inspection_maintenance(INOUT p_ivehicleinspectionid integer, p_ivehicleid integer, p_sresulttypeid smallint, p_vcertificatenumber character varying, p_dinspectiondate timestamp without time zone, p_dexpirydate timestamp without time zone, p_sdurationinspection smallint, p_iinspectorid integer, p_bpaymentrequired boolean, p_vinspectorname character varying, p_iworkshopid integer, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7564,7 +7527,7 @@ COMMENT ON FUNCTION usp_vehicle_inspection_maintenance(INOUT p_ivehicleinspectio
 
 
 --
--- TOC entry 422 (class 1255 OID 151376)
+-- TOC entry 370 (class 1255 OID 83471)
 -- Name: usp_vehicle_insur_maintenance(integer, integer, integer, character varying, timestamp without time zone, timestamp without time zone, integer, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7672,8 +7635,8 @@ $$;
 
 
 --
--- TOC entry 3596 (class 0 OID 0)
--- Dependencies: 422
+-- TOC entry 2645 (class 0 OID 0)
+-- Dependencies: 370
 -- Name: FUNCTION usp_vehicle_insur_maintenance(INOUT p_iinsurance integer, p_ivehicleid integer, p_icompanyid integer, p_vcertificatenumber character varying, p_dissuedate timestamp without time zone, p_dexpirydate timestamp without time zone, p_sstatus integer, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7681,7 +7644,7 @@ COMMENT ON FUNCTION usp_vehicle_insur_maintenance(INOUT p_iinsurance integer, p_
 
 
 --
--- TOC entry 421 (class 1255 OID 151248)
+-- TOC entry 371 (class 1255 OID 83472)
 -- Name: usp_vehicle_lien_maintenance(integer, integer, integer, character varying, timestamp without time zone, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -7787,8 +7750,8 @@ $$;
 
 
 --
--- TOC entry 3597 (class 0 OID 0)
--- Dependencies: 421
+-- TOC entry 2646 (class 0 OID 0)
+-- Dependencies: 371
 -- Name: FUNCTION usp_vehicle_lien_maintenance(INOUT p_ibanklienid integer, p_ivehicleid integer, p_ilienholderid integer, p_vphonenumber character varying, p_dstartdate timestamp without time zone, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -7796,7 +7759,7 @@ COMMENT ON FUNCTION usp_vehicle_lien_maintenance(INOUT p_ibanklienid integer, p_
 
 
 --
--- TOC entry 425 (class 1255 OID 181595)
+-- TOC entry 372 (class 1255 OID 83473)
 -- Name: usp_vehicle_maintenance(integer, character varying, smallint, smallint, smallint, smallint, boolean, character varying, timestamp without time zone, character varying, integer, smallint, timestamp without time zone, double precision, double precision, character varying, integer, integer, integer, smallint, smallint, smallint, double precision, double precision, smallint, character varying, integer, character varying, character varying, smallint, integer, smallint, integer, character varying, integer, character varying, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -8026,8 +7989,8 @@ $$;
 
 
 --
--- TOC entry 3598 (class 0 OID 0)
--- Dependencies: 425
+-- TOC entry 2647 (class 0 OID 0)
+-- Dependencies: 372
 -- Name: FUNCTION usp_vehicle_maintenance(INOUT p_ivehicleid integer, p_vvehiclecode character varying, p_scategorytypeid smallint, p_sfuelsourcetypeid smallint, p_sprimarycolour smallint, p_ssecondarycolour smallint, p_bnew boolean, p_vusedby character varying, p_downedsince timestamp without time zone, p_venginenumber character varying, p_iseatingcapacity integer, p_smaximunload smallint, p_ddatestolen timestamp without time zone, p_fgrossweight double precision, p_funladenweigth double precision, p_vexportdetails character varying, p_imakeid integer, p_imodelid integer, p_iversionid integer, p_smanufacturingyear smallint, p_sseatnumber smallint, p_spassengernumber smallint, p_ftravellingwidthfeet double precision, p_foveralllengthfeet double precision, p_shanddriveid smallint, p_vtrailer character varying, p_iimportfrom integer, p_vorigin character varying, p_vvinnumber character varying, p_splatetypeid smallint, p_iownerid integer, p_sstatus smallint, p_iinsertuserid integer, p_vinsertip character varying, p_iupdateuserid integer, p_vupdateip character varying, p_voption character varying); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8035,7 +7998,7 @@ COMMENT ON FUNCTION usp_vehicle_maintenance(INOUT p_ivehicleid integer, p_vvehic
 
 
 --
--- TOC entry 447 (class 1255 OID 470515)
+-- TOC entry 373 (class 1255 OID 83475)
 -- Name: usp_vehicle_search(integer, integer, integer, character varying, integer, character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -8193,7 +8156,7 @@ $$;
 
 
 --
--- TOC entry 412 (class 1255 OID 123004)
+-- TOC entry 374 (class 1255 OID 83477)
 -- Name: usp_vehiclecatalog_get(integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -8225,8 +8188,8 @@ $$;
 
 
 --
--- TOC entry 3599 (class 0 OID 0)
--- Dependencies: 412
+-- TOC entry 2648 (class 0 OID 0)
+-- Dependencies: 374
 -- Name: FUNCTION usp_vehiclecatalog_get(p_ireferenceid integer); Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8234,7 +8197,7 @@ COMMENT ON FUNCTION usp_vehiclecatalog_get(p_ireferenceid integer) IS 'Stored pr
 
 
 --
--- TOC entry 307 (class 1259 OID 17365)
+-- TOC entry 193 (class 1259 OID 83478)
 -- Name: appointment_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8251,7 +8214,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- TOC entry 276 (class 1259 OID 16971)
+-- TOC entry 194 (class 1259 OID 83480)
 -- Name: appointment; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8272,8 +8235,8 @@ CREATE TABLE appointment (
 
 
 --
--- TOC entry 3600 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2649 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: TABLE appointment; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8281,8 +8244,8 @@ COMMENT ON TABLE appointment IS 'Table that stores information about the quotes 
 
 
 --
--- TOC entry 3601 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2650 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.iappointmentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8290,8 +8253,8 @@ COMMENT ON COLUMN appointment.iappointmentid IS 'Primary auto increment key';
 
 
 --
--- TOC entry 3602 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2651 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.ischeduleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8299,8 +8262,8 @@ COMMENT ON COLUMN appointment.ischeduleid IS 'Schedule id';
 
 
 --
--- TOC entry 3603 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2652 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.ipartyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8308,8 +8271,8 @@ COMMENT ON COLUMN appointment.ipartyid IS 'Party id';
 
 
 --
--- TOC entry 3604 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2653 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.vcancellationnote; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8317,8 +8280,8 @@ COMMENT ON COLUMN appointment.vcancellationnote IS 'Cancellation note';
 
 
 --
--- TOC entry 3605 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2654 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.sresultexaminationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8326,8 +8289,8 @@ COMMENT ON COLUMN appointment.sresultexaminationid IS 'Result examination id';
 
 
 --
--- TOC entry 3606 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2655 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8335,8 +8298,8 @@ COMMENT ON COLUMN appointment.sstatus IS 'Status';
 
 
 --
--- TOC entry 3607 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2656 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8344,8 +8307,8 @@ COMMENT ON COLUMN appointment.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3608 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2657 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8353,8 +8316,8 @@ COMMENT ON COLUMN appointment.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3609 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2658 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8362,8 +8325,8 @@ COMMENT ON COLUMN appointment.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3610 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2659 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8371,8 +8334,8 @@ COMMENT ON COLUMN appointment.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3611 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2660 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8380,8 +8343,8 @@ COMMENT ON COLUMN appointment.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3612 (class 0 OID 0)
--- Dependencies: 276
+-- TOC entry 2661 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: COLUMN appointment.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8389,7 +8352,7 @@ COMMENT ON COLUMN appointment.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 313 (class 1259 OID 17379)
+-- TOC entry 195 (class 1259 OID 83484)
 -- Name: authorization_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8402,7 +8365,7 @@ CREATE SEQUENCE authorization_seq
 
 
 --
--- TOC entry 277 (class 1259 OID 16974)
+-- TOC entry 196 (class 1259 OID 83486)
 -- Name: authorization; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8422,8 +8385,8 @@ CREATE TABLE "authorization" (
 
 
 --
--- TOC entry 3613 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2662 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: TABLE "authorization"; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8431,8 +8394,8 @@ COMMENT ON TABLE "authorization" IS 'Table that stores information of all Author
 
 
 --
--- TOC entry 3614 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2663 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".iauthorizationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8440,8 +8403,8 @@ COMMENT ON COLUMN "authorization".iauthorizationid IS 'Primary auto-increment ke
 
 
 --
--- TOC entry 3615 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2664 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".irequestid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8449,8 +8412,8 @@ COMMENT ON COLUMN "authorization".irequestid IS 'Referring to table request';
 
 
 --
--- TOC entry 3616 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2665 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".isystemuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8458,8 +8421,8 @@ COMMENT ON COLUMN "authorization".isystemuserid IS 'Referring to table systemuse
 
 
 --
--- TOC entry 3617 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2666 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".dissuedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8467,8 +8430,8 @@ COMMENT ON COLUMN "authorization".dissuedate IS 'Date of issued';
 
 
 --
--- TOC entry 3618 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2667 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8476,8 +8439,8 @@ COMMENT ON COLUMN "authorization".sstatus IS 'It represents the status of author
 
 
 --
--- TOC entry 3619 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2668 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8485,8 +8448,8 @@ COMMENT ON COLUMN "authorization".iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3620 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2669 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8494,8 +8457,8 @@ COMMENT ON COLUMN "authorization".dinsertdate IS 'Updated user ID';
 
 
 --
--- TOC entry 3621 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2670 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8503,8 +8466,8 @@ COMMENT ON COLUMN "authorization".vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3622 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2671 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8512,8 +8475,8 @@ COMMENT ON COLUMN "authorization".iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3623 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2672 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8521,8 +8484,8 @@ COMMENT ON COLUMN "authorization".dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3624 (class 0 OID 0)
--- Dependencies: 277
+-- TOC entry 2673 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: COLUMN "authorization".vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8530,7 +8493,7 @@ COMMENT ON COLUMN "authorization".vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 323 (class 1259 OID 21300)
+-- TOC entry 197 (class 1259 OID 83490)
 -- Name: country_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8543,7 +8506,7 @@ CREATE SEQUENCE country_seq
 
 
 --
--- TOC entry 321 (class 1259 OID 17931)
+-- TOC entry 198 (class 1259 OID 83492)
 -- Name: country; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8563,8 +8526,8 @@ CREATE TABLE country (
 
 
 --
--- TOC entry 3625 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2674 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: TABLE country; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8572,8 +8535,8 @@ COMMENT ON TABLE country IS 'Table containing the description of countries';
 
 
 --
--- TOC entry 3626 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2675 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.scountryid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8581,8 +8544,8 @@ COMMENT ON COLUMN country.scountryid IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3627 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2676 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.vcountrycode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8590,8 +8553,8 @@ COMMENT ON COLUMN country.vcountrycode IS 'Code to identify the country';
 
 
 --
--- TOC entry 3628 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2677 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.vname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8599,8 +8562,8 @@ COMMENT ON COLUMN country.vname IS 'Country name';
 
 
 --
--- TOC entry 3629 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2678 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8608,8 +8571,8 @@ COMMENT ON COLUMN country.sstatus IS 'State of the country';
 
 
 --
--- TOC entry 3630 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2679 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8617,8 +8580,8 @@ COMMENT ON COLUMN country.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3631 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2680 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8626,8 +8589,8 @@ COMMENT ON COLUMN country.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3632 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2681 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8635,8 +8598,8 @@ COMMENT ON COLUMN country.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3633 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2682 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8644,8 +8607,8 @@ COMMENT ON COLUMN country.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3634 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2683 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8653,8 +8616,8 @@ COMMENT ON COLUMN country.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3635 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2684 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8662,8 +8625,8 @@ COMMENT ON COLUMN country.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 3636 (class 0 OID 0)
--- Dependencies: 321
+-- TOC entry 2685 (class 0 OID 0)
+-- Dependencies: 198
 -- Name: COLUMN country.ilicenseid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8671,7 +8634,7 @@ COMMENT ON COLUMN country.ilicenseid IS 'Referring to table license';
 
 
 --
--- TOC entry 310 (class 1259 OID 17373)
+-- TOC entry 199 (class 1259 OID 83496)
 -- Name: document_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8684,7 +8647,7 @@ CREATE SEQUENCE document_seq
 
 
 --
--- TOC entry 278 (class 1259 OID 16977)
+-- TOC entry 200 (class 1259 OID 83498)
 -- Name: document; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8703,8 +8666,8 @@ CREATE TABLE document (
 
 
 --
--- TOC entry 3637 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2686 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: TABLE document; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8712,8 +8675,8 @@ COMMENT ON TABLE document IS 'Table that stores the types of documentation';
 
 
 --
--- TOC entry 3638 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2687 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.idocumentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8721,8 +8684,8 @@ COMMENT ON COLUMN document.idocumentid IS 'Primary key to identify the country';
 
 
 --
--- TOC entry 3639 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2688 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.vdocumentcode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8730,8 +8693,8 @@ COMMENT ON COLUMN document.vdocumentcode IS 'Code to identify the document';
 
 
 --
--- TOC entry 3640 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2689 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.vname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8739,8 +8702,8 @@ COMMENT ON COLUMN document.vname IS 'document description ';
 
 
 --
--- TOC entry 3641 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2690 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8748,8 +8711,8 @@ COMMENT ON COLUMN document.sstatus IS 'Document Status';
 
 
 --
--- TOC entry 3642 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2691 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8757,8 +8720,8 @@ COMMENT ON COLUMN document.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3643 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2692 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8766,8 +8729,8 @@ COMMENT ON COLUMN document.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3644 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2693 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8775,8 +8738,8 @@ COMMENT ON COLUMN document.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3645 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2694 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8784,8 +8747,8 @@ COMMENT ON COLUMN document.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3646 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2695 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8793,8 +8756,8 @@ COMMENT ON COLUMN document.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3647 (class 0 OID 0)
--- Dependencies: 278
+-- TOC entry 2696 (class 0 OID 0)
+-- Dependencies: 200
 -- Name: COLUMN document.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8802,7 +8765,7 @@ COMMENT ON COLUMN document.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 320 (class 1259 OID 17395)
+-- TOC entry 201 (class 1259 OID 83505)
 -- Name: exchangerate_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8815,7 +8778,7 @@ CREATE SEQUENCE exchangerate_seq
 
 
 --
--- TOC entry 279 (class 1259 OID 16980)
+-- TOC entry 202 (class 1259 OID 83507)
 -- Name: exchangerate; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8836,8 +8799,8 @@ CREATE TABLE exchangerate (
 
 
 --
--- TOC entry 3648 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2697 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: TABLE exchangerate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8845,8 +8808,8 @@ COMMENT ON TABLE exchangerate IS 'Table that stores information of all exchanger
 
 
 --
--- TOC entry 3649 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2698 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.iexchangerateid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8854,8 +8817,8 @@ COMMENT ON COLUMN exchangerate.iexchangerateid IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3650 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2699 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.famount; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8863,8 +8826,8 @@ COMMENT ON COLUMN exchangerate.famount IS 'Amount of exchange';
 
 
 --
--- TOC entry 3651 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2700 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.scurrencyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8873,8 +8836,8 @@ Group CONFIGURATION_CURRENCY = 2300 : 2301 => USD; 2302 => PAB; 2303 => S /.';
 
 
 --
--- TOC entry 3652 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2701 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8882,8 +8845,8 @@ COMMENT ON COLUMN exchangerate.dstartdate IS 'Start date exchange rate';
 
 
 --
--- TOC entry 3653 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2702 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.dfinishdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8891,8 +8854,8 @@ COMMENT ON COLUMN exchangerate.dfinishdate IS 'Finish date exchange rate';
 
 
 --
--- TOC entry 3654 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2703 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8900,8 +8863,8 @@ COMMENT ON COLUMN exchangerate.sstatus IS 'It represents the status of exchanger
 
 
 --
--- TOC entry 3655 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2704 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8909,8 +8872,8 @@ COMMENT ON COLUMN exchangerate.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3656 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2705 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8918,8 +8881,8 @@ COMMENT ON COLUMN exchangerate.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3657 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2706 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8927,8 +8890,8 @@ COMMENT ON COLUMN exchangerate.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3658 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2707 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8936,8 +8899,8 @@ COMMENT ON COLUMN exchangerate.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3659 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2708 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8945,8 +8908,8 @@ COMMENT ON COLUMN exchangerate.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3660 (class 0 OID 0)
--- Dependencies: 279
+-- TOC entry 2709 (class 0 OID 0)
+-- Dependencies: 202
 -- Name: COLUMN exchangerate.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8954,7 +8917,7 @@ COMMENT ON COLUMN exchangerate.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 343 (class 1259 OID 370604)
+-- TOC entry 260 (class 1259 OID 84116)
 -- Name: location_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -8967,7 +8930,7 @@ CREATE SEQUENCE location_seq
 
 
 --
--- TOC entry 322 (class 1259 OID 17934)
+-- TOC entry 203 (class 1259 OID 83513)
 -- Name: location; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -8989,8 +8952,8 @@ CREATE TABLE location (
 
 
 --
--- TOC entry 3661 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2710 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: TABLE location; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -8998,8 +8961,8 @@ COMMENT ON TABLE location IS 'Table that stores information regarding locations'
 
 
 --
--- TOC entry 3662 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2711 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9007,8 +8970,8 @@ COMMENT ON COLUMN location.ilocationid IS 'Primary key to identify the location'
 
 
 --
--- TOC entry 3663 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2712 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.slocationtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9016,8 +8979,8 @@ COMMENT ON COLUMN location.slocationtypeid IS 'Location type id ';
 
 
 --
--- TOC entry 3664 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2713 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.slevelid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9025,8 +8988,8 @@ COMMENT ON COLUMN location.slevelid IS 'location lavel id';
 
 
 --
--- TOC entry 3665 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2714 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.scountryid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9034,8 +8997,8 @@ COMMENT ON COLUMN location.scountryid IS 'Country id';
 
 
 --
--- TOC entry 3666 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2715 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9043,8 +9006,8 @@ COMMENT ON COLUMN location.vdescription IS 'Location description';
 
 
 --
--- TOC entry 3667 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2716 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.ireferenceid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9052,8 +9015,8 @@ COMMENT ON COLUMN location.ireferenceid IS 'Location refernce id';
 
 
 --
--- TOC entry 3668 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2717 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9061,8 +9024,8 @@ COMMENT ON COLUMN location.sstatus IS 'Location Status';
 
 
 --
--- TOC entry 3669 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2718 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9070,8 +9033,8 @@ COMMENT ON COLUMN location.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3670 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2719 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9079,8 +9042,8 @@ COMMENT ON COLUMN location.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3671 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2720 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9088,8 +9051,8 @@ COMMENT ON COLUMN location.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3672 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2721 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9097,8 +9060,8 @@ COMMENT ON COLUMN location.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3673 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2722 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9106,8 +9069,8 @@ COMMENT ON COLUMN location.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3674 (class 0 OID 0)
--- Dependencies: 322
+-- TOC entry 2723 (class 0 OID 0)
+-- Dependencies: 203
 -- Name: COLUMN location.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9115,7 +9078,7 @@ COMMENT ON COLUMN location.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 299 (class 1259 OID 17341)
+-- TOC entry 204 (class 1259 OID 83517)
 -- Name: note_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9128,7 +9091,7 @@ CREATE SEQUENCE note_seq
 
 
 --
--- TOC entry 337 (class 1259 OID 252604)
+-- TOC entry 205 (class 1259 OID 83519)
 -- Name: note; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9153,8 +9116,8 @@ CREATE TABLE note (
 
 
 --
--- TOC entry 3675 (class 0 OID 0)
--- Dependencies: 337
+-- TOC entry 2724 (class 0 OID 0)
+-- Dependencies: 205
 -- Name: TABLE note; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9162,7 +9125,7 @@ COMMENT ON TABLE note IS 'Table that stores Note';
 
 
 --
--- TOC entry 315 (class 1259 OID 17385)
+-- TOC entry 206 (class 1259 OID 83526)
 -- Name: office_examinationtype_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9175,7 +9138,7 @@ CREATE SEQUENCE office_examinationtype_seq
 
 
 --
--- TOC entry 280 (class 1259 OID 16989)
+-- TOC entry 207 (class 1259 OID 83528)
 -- Name: office_examinationtype; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9196,8 +9159,8 @@ CREATE TABLE office_examinationtype (
 
 
 --
--- TOC entry 3676 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2725 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: TABLE office_examinationtype; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9205,8 +9168,8 @@ COMMENT ON TABLE office_examinationtype IS 'Table that stores information of the
 
 
 --
--- TOC entry 3677 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2726 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.iofficeexaminationtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9214,8 +9177,8 @@ COMMENT ON COLUMN office_examinationtype.iofficeexaminationtypeid IS 'Primary au
 
 
 --
--- TOC entry 3678 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2727 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9223,8 +9186,8 @@ COMMENT ON COLUMN office_examinationtype.ilocationid IS 'Location id';
 
 
 --
--- TOC entry 3679 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2728 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.sexaminationtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9232,8 +9195,8 @@ COMMENT ON COLUMN office_examinationtype.sexaminationtypeid IS 'Examination type
 
 
 --
--- TOC entry 3680 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2729 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.snumberperson; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9241,8 +9204,8 @@ COMMENT ON COLUMN office_examinationtype.snumberperson IS 'Person number ';
 
 
 --
--- TOC entry 3681 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2730 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.vnote; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9250,8 +9213,8 @@ COMMENT ON COLUMN office_examinationtype.vnote IS 'Description the notes';
 
 
 --
--- TOC entry 3682 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2731 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9259,8 +9222,8 @@ COMMENT ON COLUMN office_examinationtype.sstatus IS 'Status';
 
 
 --
--- TOC entry 3683 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2732 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9268,8 +9231,8 @@ COMMENT ON COLUMN office_examinationtype.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3684 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2733 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9277,8 +9240,8 @@ COMMENT ON COLUMN office_examinationtype.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3685 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2734 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9286,8 +9249,8 @@ COMMENT ON COLUMN office_examinationtype.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3686 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2735 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9295,8 +9258,8 @@ COMMENT ON COLUMN office_examinationtype.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3687 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2736 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9304,8 +9267,8 @@ COMMENT ON COLUMN office_examinationtype.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3688 (class 0 OID 0)
--- Dependencies: 280
+-- TOC entry 2737 (class 0 OID 0)
+-- Dependencies: 207
 -- Name: COLUMN office_examinationtype.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9313,7 +9276,7 @@ COMMENT ON COLUMN office_examinationtype.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 346 (class 1259 OID 495967)
+-- TOC entry 208 (class 1259 OID 83535)
 -- Name: p_ipartyid; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9323,7 +9286,7 @@ CREATE TABLE p_ipartyid (
 
 
 --
--- TOC entry 308 (class 1259 OID 17369)
+-- TOC entry 209 (class 1259 OID 83538)
 -- Name: party_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9336,7 +9299,7 @@ CREATE SEQUENCE party_seq
 
 
 --
--- TOC entry 281 (class 1259 OID 16995)
+-- TOC entry 210 (class 1259 OID 83540)
 -- Name: party; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9386,8 +9349,8 @@ CREATE TABLE party (
 
 
 --
--- TOC entry 3689 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2738 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: TABLE party; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9395,8 +9358,8 @@ COMMENT ON TABLE party IS 'Table that stores all types of users';
 
 
 --
--- TOC entry 3690 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2739 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.ipartyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9404,8 +9367,8 @@ COMMENT ON COLUMN party.ipartyid IS 'Id primary key';
 
 
 --
--- TOC entry 3691 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2740 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.spartytypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9413,8 +9376,8 @@ COMMENT ON COLUMN party.spartytypeid IS 'relation to systemparameter igropud = 3
 
 
 --
--- TOC entry 3692 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2741 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.spartysubtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9422,8 +9385,8 @@ COMMENT ON COLUMN party.spartysubtypeid IS 'Type of organization, relation to sy
 
 
 --
--- TOC entry 3693 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2742 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.sdocumenttypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9431,8 +9394,8 @@ COMMENT ON COLUMN party.sdocumenttypeid IS 'Type document, relation to systempar
 
 
 --
--- TOC entry 3694 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2743 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vdocumentnumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9440,8 +9403,8 @@ COMMENT ON COLUMN party.vdocumentnumber IS 'Document Number';
 
 
 --
--- TOC entry 3695 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2744 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vlastname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9449,8 +9412,8 @@ COMMENT ON COLUMN party.vlastname IS 'Last name';
 
 
 --
--- TOC entry 3696 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2745 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vmiddlename; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9458,8 +9421,8 @@ COMMENT ON COLUMN party.vmiddlename IS 'Middle name';
 
 
 --
--- TOC entry 3697 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2746 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vmaidenname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9467,8 +9430,8 @@ COMMENT ON COLUMN party.vmaidenname IS 'Maiden name';
 
 
 --
--- TOC entry 3698 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2747 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vfirstname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9476,8 +9439,8 @@ COMMENT ON COLUMN party.vfirstname IS 'Firts name';
 
 
 --
--- TOC entry 3699 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2748 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vorganization; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9485,8 +9448,8 @@ COMMENT ON COLUMN party.vorganization IS 'Organization name';
 
 
 --
--- TOC entry 3700 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2749 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.snationalityid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9494,8 +9457,8 @@ COMMENT ON COLUMN party.snationalityid IS 'Current nationality';
 
 
 --
--- TOC entry 3701 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2750 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.ipartyaddressid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9503,8 +9466,8 @@ COMMENT ON COLUMN party.ipartyaddressid IS 'relation to table country';
 
 
 --
--- TOC entry 3702 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2751 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vpartycode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9512,8 +9475,8 @@ COMMENT ON COLUMN party.vpartycode IS 'Personalized unique code considering any 
 
 
 --
--- TOC entry 3703 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2752 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.sgenderid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9521,8 +9484,8 @@ COMMENT ON COLUMN party.sgenderid IS 'relation to systemparameter igropud = 3490
 
 
 --
--- TOC entry 3704 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2753 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.fheigth; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9530,8 +9493,8 @@ COMMENT ON COLUMN party.fheigth IS 'Heigth';
 
 
 --
--- TOC entry 3705 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2754 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.ddateofbirth; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9539,8 +9502,8 @@ COMMENT ON COLUMN party.ddateofbirth IS 'Date of birth';
 
 
 --
--- TOC entry 3706 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2755 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.bdeceased; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9548,8 +9511,8 @@ COMMENT ON COLUMN party.bdeceased IS 'Is Deceased';
 
 
 --
--- TOC entry 3707 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2756 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.seyecolourid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9557,8 +9520,8 @@ COMMENT ON COLUMN party.seyecolourid IS 'Eye colour';
 
 
 --
--- TOC entry 3708 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2757 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.shaircolourid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9566,8 +9529,8 @@ COMMENT ON COLUMN party.shaircolourid IS 'Hair colour';
 
 
 --
--- TOC entry 3709 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2758 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.bdisqualified; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9575,8 +9538,8 @@ COMMENT ON COLUMN party.bdisqualified IS 'It is disqualified for procedures';
 
 
 --
--- TOC entry 3710 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2759 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vdisability; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9584,8 +9547,8 @@ COMMENT ON COLUMN party.vdisability IS 'Disability, separated by | , max 3 disab
 
 
 --
--- TOC entry 3711 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2760 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vphoto; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9593,8 +9556,8 @@ COMMENT ON COLUMN party.vphoto IS 'Name and  extension photo ';
 
 
 --
--- TOC entry 3712 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2761 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vemailaddress; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9602,8 +9565,8 @@ COMMENT ON COLUMN party.vemailaddress IS 'Phone and email contact';
 
 
 --
--- TOC entry 3713 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2762 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vcontactinformation; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9611,8 +9574,8 @@ COMMENT ON COLUMN party.vcontactinformation IS 'Last, first and middle name cont
 
 
 --
--- TOC entry 3714 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2763 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.vphonenumberinformation; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9620,8 +9583,8 @@ COMMENT ON COLUMN party.vphonenumberinformation IS 'Phone1, phone2, mobile and e
 
 
 --
--- TOC entry 3715 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2764 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.bonlineaccess; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9629,8 +9592,8 @@ COMMENT ON COLUMN party.bonlineaccess IS 'Is access online';
 
 
 --
--- TOC entry 3716 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2765 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.ddisqualifiedstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9638,8 +9601,8 @@ COMMENT ON COLUMN party.ddisqualifiedstartdate IS 'Initial date of disqualificat
 
 
 --
--- TOC entry 3717 (class 0 OID 0)
--- Dependencies: 281
+-- TOC entry 2766 (class 0 OID 0)
+-- Dependencies: 210
 -- Name: COLUMN party.ddisqualifiedenddate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9647,7 +9610,7 @@ COMMENT ON COLUMN party.ddisqualifiedenddate IS 'Finish date of disqualification
 
 
 --
--- TOC entry 316 (class 1259 OID 17387)
+-- TOC entry 211 (class 1259 OID 83547)
 -- Name: party_company_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9660,7 +9623,7 @@ CREATE SEQUENCE party_company_seq
 
 
 --
--- TOC entry 282 (class 1259 OID 17001)
+-- TOC entry 212 (class 1259 OID 83549)
 -- Name: party_company; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9679,8 +9642,8 @@ CREATE TABLE party_company (
 
 
 --
--- TOC entry 3718 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2767 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: TABLE party_company; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9688,8 +9651,8 @@ COMMENT ON TABLE party_company IS 'Table that stores a user company related to m
 
 
 --
--- TOC entry 3719 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2768 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.ipartycompanyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9697,8 +9660,8 @@ COMMENT ON COLUMN party_company.ipartycompanyid IS 'ID key';
 
 
 --
--- TOC entry 3720 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2769 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.ipartyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9706,8 +9669,8 @@ COMMENT ON COLUMN party_company.ipartyid IS 'ID party relation to the table Part
 
 
 --
--- TOC entry 3721 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2770 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.icompanyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9715,8 +9678,8 @@ COMMENT ON COLUMN party_company.icompanyid IS 'ID party relation to the table Pa
 
 
 --
--- TOC entry 3722 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2771 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9724,8 +9687,8 @@ COMMENT ON COLUMN party_company.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3723 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2772 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9733,8 +9696,8 @@ COMMENT ON COLUMN party_company.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3724 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2773 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9742,8 +9705,8 @@ COMMENT ON COLUMN party_company.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3725 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2774 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9751,8 +9714,8 @@ COMMENT ON COLUMN party_company.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3726 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2775 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9760,8 +9723,8 @@ COMMENT ON COLUMN party_company.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3727 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2776 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9769,8 +9732,8 @@ COMMENT ON COLUMN party_company.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3728 (class 0 OID 0)
--- Dependencies: 282
+-- TOC entry 2777 (class 0 OID 0)
+-- Dependencies: 212
 -- Name: COLUMN party_company.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9778,7 +9741,7 @@ COMMENT ON COLUMN party_company.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 327 (class 1259 OID 21676)
+-- TOC entry 213 (class 1259 OID 83553)
 -- Name: party_location_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9791,7 +9754,7 @@ CREATE SEQUENCE party_location_seq
 
 
 --
--- TOC entry 328 (class 1259 OID 21701)
+-- TOC entry 214 (class 1259 OID 83555)
 -- Name: party_location; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9813,8 +9776,8 @@ CREATE TABLE party_location (
 
 
 --
--- TOC entry 3729 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2778 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: TABLE party_location; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9822,8 +9785,8 @@ COMMENT ON TABLE party_location IS 'Table that stores the addresses of users.';
 
 
 --
--- TOC entry 3730 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2779 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.ipartylocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9831,8 +9794,8 @@ COMMENT ON COLUMN party_location.ipartylocationid IS 'ID key';
 
 
 --
--- TOC entry 3731 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2780 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.ipartyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9840,8 +9803,8 @@ COMMENT ON COLUMN party_location.ipartyid IS 'ID party relation to the table Par
 
 
 --
--- TOC entry 3732 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2781 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9849,8 +9812,8 @@ COMMENT ON COLUMN party_location.ilocationid IS 'ID party relation to the table 
 
 
 --
--- TOC entry 3733 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2782 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.ipartylocationtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9858,8 +9821,8 @@ COMMENT ON COLUMN party_location.ipartylocationtypeid IS 'Location type, relatio
 
 
 --
--- TOC entry 3734 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2783 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.vstreet; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9867,8 +9830,8 @@ COMMENT ON COLUMN party_location.vstreet IS 'Street separated by | Formatted  st
 
 
 --
--- TOC entry 3735 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2784 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.vinformation; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9876,8 +9839,8 @@ COMMENT ON COLUMN party_location.vinformation IS 'Field ZipCode|PO Box|Post Code
 
 
 --
--- TOC entry 3736 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2785 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9885,8 +9848,8 @@ COMMENT ON COLUMN party_location.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3737 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2786 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9894,8 +9857,8 @@ COMMENT ON COLUMN party_location.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3738 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2787 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9903,8 +9866,8 @@ COMMENT ON COLUMN party_location.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3739 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2788 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9912,8 +9875,8 @@ COMMENT ON COLUMN party_location.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3740 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2789 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9921,8 +9884,8 @@ COMMENT ON COLUMN party_location.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3741 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2790 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9930,8 +9893,8 @@ COMMENT ON COLUMN party_location.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3742 (class 0 OID 0)
--- Dependencies: 328
+-- TOC entry 2791 (class 0 OID 0)
+-- Dependencies: 214
 -- Name: COLUMN party_location.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9939,7 +9902,7 @@ COMMENT ON COLUMN party_location.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 319 (class 1259 OID 17393)
+-- TOC entry 215 (class 1259 OID 83562)
 -- Name: payment_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -9952,7 +9915,7 @@ CREATE SEQUENCE payment_seq
 
 
 --
--- TOC entry 283 (class 1259 OID 17004)
+-- TOC entry 216 (class 1259 OID 83564)
 -- Name: payment; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -9974,8 +9937,8 @@ CREATE TABLE payment (
 
 
 --
--- TOC entry 3743 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2792 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: TABLE payment; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9983,8 +9946,8 @@ COMMENT ON TABLE payment IS 'Table that stores information of all payments';
 
 
 --
--- TOC entry 3744 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2793 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.ipaymentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -9992,8 +9955,8 @@ COMMENT ON COLUMN payment.ipaymentid IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3745 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2794 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.vreceiptnumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10001,8 +9964,8 @@ COMMENT ON COLUMN payment.vreceiptnumber IS 'It represents the number of receipt
 
 
 --
--- TOC entry 3746 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2795 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.dpaymentdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10010,8 +9973,8 @@ COMMENT ON COLUMN payment.dpaymentdate IS 'It represents the date the payment wa
 
 
 --
--- TOC entry 3747 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2796 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.fpricecost; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10019,8 +9982,8 @@ COMMENT ON COLUMN payment.fpricecost IS 'It represents the price cost of a payme
 
 
 --
--- TOC entry 3748 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2797 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.fpricetax; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10028,8 +9991,8 @@ COMMENT ON COLUMN payment.fpricetax IS 'It represents the price tax';
 
 
 --
--- TOC entry 3749 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2798 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.fpricetotal; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10037,8 +10000,8 @@ COMMENT ON COLUMN payment.fpricetotal IS 'It represents the sum of the price cos
 
 
 --
--- TOC entry 3750 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2799 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10046,8 +10009,8 @@ COMMENT ON COLUMN payment.sstatus IS 'It represents the status of a payment; 1= 
 
 
 --
--- TOC entry 3751 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2800 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10055,8 +10018,8 @@ COMMENT ON COLUMN payment.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3752 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2801 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10064,8 +10027,8 @@ COMMENT ON COLUMN payment.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3753 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2802 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10073,8 +10036,8 @@ COMMENT ON COLUMN payment.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3754 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2803 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10082,8 +10045,8 @@ COMMENT ON COLUMN payment.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3755 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2804 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10091,8 +10054,8 @@ COMMENT ON COLUMN payment.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3756 (class 0 OID 0)
--- Dependencies: 283
+-- TOC entry 2805 (class 0 OID 0)
+-- Dependencies: 216
 -- Name: COLUMN payment.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10100,7 +10063,7 @@ COMMENT ON COLUMN payment.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 305 (class 1259 OID 17361)
+-- TOC entry 217 (class 1259 OID 83568)
 -- Name: payment_detail_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10113,7 +10076,7 @@ CREATE SEQUENCE payment_detail_seq
 
 
 --
--- TOC entry 284 (class 1259 OID 17007)
+-- TOC entry 218 (class 1259 OID 83570)
 -- Name: payment_detail; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10139,8 +10102,8 @@ CREATE TABLE payment_detail (
 
 
 --
--- TOC entry 3757 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2806 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: TABLE payment_detail; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10148,8 +10111,8 @@ COMMENT ON TABLE payment_detail IS 'Table that stores information of all payment
 
 
 --
--- TOC entry 3758 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2807 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.ipayment_detailid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10157,8 +10120,8 @@ COMMENT ON COLUMN payment_detail.ipayment_detailid IS 'Primary auto-increment ke
 
 
 --
--- TOC entry 3759 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2808 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.ipaymentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10166,8 +10129,8 @@ COMMENT ON COLUMN payment_detail.ipaymentid IS 'Referring to table payment';
 
 
 --
--- TOC entry 3760 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2809 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.smethodpaymentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10176,8 +10139,8 @@ Group OPERATION_PAYMENTMETHOD = 6100; 6101 => BANK; 6102 => CASH; 6103 => CREDIT
 
 
 --
--- TOC entry 3761 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2810 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.scurrencyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10186,8 +10149,8 @@ Group CONFIGURATION_CURRENCY = 2300 : 2301 => USD; 2302 => PAB; 2303 => S /.';
 
 
 --
--- TOC entry 3762 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2811 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.sbanktypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10195,8 +10158,8 @@ COMMENT ON COLUMN payment_detail.sbanktypeid IS 'Referring to Table systemparame
 
 
 --
--- TOC entry 3763 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2812 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.ichequenumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10204,8 +10167,8 @@ COMMENT ON COLUMN payment_detail.ichequenumber IS 'Number Cheque';
 
 
 --
--- TOC entry 3764 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2813 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.fpricecost; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10213,8 +10176,8 @@ COMMENT ON COLUMN payment_detail.fpricecost IS 'It represents the price cost of 
 
 
 --
--- TOC entry 3765 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2814 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.fpricetax; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10222,8 +10185,8 @@ COMMENT ON COLUMN payment_detail.fpricetax IS 'It represents the price tax';
 
 
 --
--- TOC entry 3766 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2815 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.fpricetotal; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10231,8 +10194,8 @@ COMMENT ON COLUMN payment_detail.fpricetotal IS 'It represents the sum of the pr
 
 
 --
--- TOC entry 3767 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2816 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.iexchangerateid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10240,8 +10203,8 @@ COMMENT ON COLUMN payment_detail.iexchangerateid IS 'Referring to table exchange
 
 
 --
--- TOC entry 3768 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2817 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10249,8 +10212,8 @@ COMMENT ON COLUMN payment_detail.sstatus IS 'It represents the status of payment
 
 
 --
--- TOC entry 3769 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2818 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10258,8 +10221,8 @@ COMMENT ON COLUMN payment_detail.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3770 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2819 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10267,8 +10230,8 @@ COMMENT ON COLUMN payment_detail.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3771 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2820 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10276,8 +10239,8 @@ COMMENT ON COLUMN payment_detail.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3772 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2821 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10285,8 +10248,8 @@ COMMENT ON COLUMN payment_detail.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3773 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2822 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10294,8 +10257,8 @@ COMMENT ON COLUMN payment_detail.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3774 (class 0 OID 0)
--- Dependencies: 284
+-- TOC entry 2823 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: COLUMN payment_detail.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10303,7 +10266,7 @@ COMMENT ON COLUMN payment_detail.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 306 (class 1259 OID 17363)
+-- TOC entry 219 (class 1259 OID 83574)
 -- Name: pricing_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10316,7 +10279,7 @@ CREATE SEQUENCE pricing_seq
 
 
 --
--- TOC entry 303 (class 1259 OID 17353)
+-- TOC entry 220 (class 1259 OID 83576)
 -- Name: printer_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10329,7 +10292,7 @@ CREATE SEQUENCE printer_seq
 
 
 --
--- TOC entry 286 (class 1259 OID 17016)
+-- TOC entry 221 (class 1259 OID 83578)
 -- Name: printer; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10349,8 +10312,8 @@ CREATE TABLE printer (
 
 
 --
--- TOC entry 3775 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2824 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: TABLE printer; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10358,8 +10321,8 @@ COMMENT ON TABLE printer IS 'Table containing information about printers';
 
 
 --
--- TOC entry 3776 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2825 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.iprinterid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10367,8 +10330,8 @@ COMMENT ON COLUMN printer.iprinterid IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3777 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2826 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10376,8 +10339,8 @@ COMMENT ON COLUMN printer.ilocationid IS 'Location ID';
 
 
 --
--- TOC entry 3778 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2827 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10385,8 +10348,8 @@ COMMENT ON COLUMN printer.vdescription IS 'Printer description';
 
 
 --
--- TOC entry 3779 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2828 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10394,8 +10357,8 @@ COMMENT ON COLUMN printer.sstatus IS 'Status';
 
 
 --
--- TOC entry 3780 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2829 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10403,8 +10366,8 @@ COMMENT ON COLUMN printer.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3781 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2830 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10412,8 +10375,8 @@ COMMENT ON COLUMN printer.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3782 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2831 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10421,8 +10384,8 @@ COMMENT ON COLUMN printer.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3783 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2832 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10430,8 +10393,8 @@ COMMENT ON COLUMN printer.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3784 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2833 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10439,8 +10402,8 @@ COMMENT ON COLUMN printer.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3785 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2834 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10448,8 +10411,8 @@ COMMENT ON COLUMN printer.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 3786 (class 0 OID 0)
--- Dependencies: 286
+-- TOC entry 2835 (class 0 OID 0)
+-- Dependencies: 221
 -- Name: COLUMN printer.vipdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10457,7 +10420,7 @@ COMMENT ON COLUMN printer.vipdescription IS 'Ip Description';
 
 
 --
--- TOC entry 301 (class 1259 OID 17347)
+-- TOC entry 222 (class 1259 OID 83582)
 -- Name: printer_user_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10470,7 +10433,7 @@ CREATE SEQUENCE printer_user_seq
 
 
 --
--- TOC entry 287 (class 1259 OID 17019)
+-- TOC entry 223 (class 1259 OID 83584)
 -- Name: printer_user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10489,8 +10452,8 @@ CREATE TABLE printer_user (
 
 
 --
--- TOC entry 3787 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2836 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: TABLE printer_user; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10498,8 +10461,8 @@ COMMENT ON TABLE printer_user IS 'Table containing information about printers as
 
 
 --
--- TOC entry 3788 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2837 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.iprinteruserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10507,8 +10470,8 @@ COMMENT ON COLUMN printer_user.iprinteruserid IS 'Primary key to identify the co
 
 
 --
--- TOC entry 3789 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2838 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.isystemuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10516,8 +10479,8 @@ COMMENT ON COLUMN printer_user.isystemuserid IS 'System user id';
 
 
 --
--- TOC entry 3790 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2839 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.iprinterid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10525,8 +10488,8 @@ COMMENT ON COLUMN printer_user.iprinterid IS 'Printer Id';
 
 
 --
--- TOC entry 3791 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2840 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10534,8 +10497,8 @@ COMMENT ON COLUMN printer_user.sstatus IS 'Status';
 
 
 --
--- TOC entry 3792 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2841 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10543,8 +10506,8 @@ COMMENT ON COLUMN printer_user.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3793 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2842 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10552,8 +10515,8 @@ COMMENT ON COLUMN printer_user.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3794 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2843 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10561,8 +10524,8 @@ COMMENT ON COLUMN printer_user.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3795 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2844 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10570,8 +10533,8 @@ COMMENT ON COLUMN printer_user.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3796 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2845 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10579,8 +10542,8 @@ COMMENT ON COLUMN printer_user.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3797 (class 0 OID 0)
--- Dependencies: 287
+-- TOC entry 2846 (class 0 OID 0)
+-- Dependencies: 223
 -- Name: COLUMN printer_user.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10588,7 +10551,7 @@ COMMENT ON COLUMN printer_user.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 344 (class 1259 OID 370607)
+-- TOC entry 261 (class 1259 OID 84119)
 -- Name: product_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10601,7 +10564,7 @@ CREATE SEQUENCE product_seq
 
 
 --
--- TOC entry 288 (class 1259 OID 17022)
+-- TOC entry 224 (class 1259 OID 83590)
 -- Name: product; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10632,8 +10595,8 @@ CREATE TABLE product (
 
 
 --
--- TOC entry 3798 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2847 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: TABLE product; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10641,8 +10604,8 @@ COMMENT ON TABLE product IS 'Table that stores product information.';
 
 
 --
--- TOC entry 3799 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2848 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10650,8 +10613,8 @@ COMMENT ON COLUMN product.iproductid IS 'ID key';
 
 
 --
--- TOC entry 3800 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2849 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sproducttypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10659,8 +10622,8 @@ COMMENT ON COLUMN product.sproducttypeid IS 'Product Type, relation to systempar
 
 
 --
--- TOC entry 3801 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2850 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sproductuseid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10668,8 +10631,8 @@ COMMENT ON COLUMN product.sproductuseid IS 'Product use, relation to systemparam
 
 
 --
--- TOC entry 3802 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2851 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sproductcategoryid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10677,8 +10640,8 @@ COMMENT ON COLUMN product.sproductcategoryid IS 'Product category, relation to s
 
 
 --
--- TOC entry 3803 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2852 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sproductscopeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10686,8 +10649,8 @@ COMMENT ON COLUMN product.sproductscopeid IS 'Relation to systemparameter igropu
 
 
 --
--- TOC entry 3804 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2853 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10695,8 +10658,8 @@ COMMENT ON COLUMN product.vdescription IS 'Description';
 
 
 --
--- TOC entry 3805 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2854 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.vproductcode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10704,8 +10667,8 @@ COMMENT ON COLUMN product.vproductcode IS 'Code product';
 
 
 --
--- TOC entry 3806 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2855 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10713,8 +10676,8 @@ COMMENT ON COLUMN product.dstartdate IS 'Product inception date';
 
 
 --
--- TOC entry 3807 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2856 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.denddate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10722,8 +10685,8 @@ COMMENT ON COLUMN product.denddate IS 'Effective end product';
 
 
 --
--- TOC entry 3808 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2857 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.bauthorization; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10731,8 +10694,8 @@ COMMENT ON COLUMN product.bauthorization IS 'If required authorization';
 
 
 --
--- TOC entry 3809 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2858 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.vcharacteristics; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10740,8 +10703,8 @@ COMMENT ON COLUMN product.vcharacteristics IS 'Detailed description of the produ
 
 
 --
--- TOC entry 3810 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2859 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sorder; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10749,8 +10712,8 @@ COMMENT ON COLUMN product.sorder IS 'Order';
 
 
 --
--- TOC entry 3811 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2860 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.bvisible; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10758,8 +10721,8 @@ COMMENT ON COLUMN product.bvisible IS 'Is visible in the app';
 
 
 --
--- TOC entry 3812 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2861 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.bconformity; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10767,8 +10730,8 @@ COMMENT ON COLUMN product.bconformity IS 'Is requerit conformity in the finish a
 
 
 --
--- TOC entry 3813 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2862 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.bfloating; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10776,8 +10739,8 @@ COMMENT ON COLUMN product.bfloating IS 'If it can be floating';
 
 
 --
--- TOC entry 3814 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2863 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10785,8 +10748,8 @@ COMMENT ON COLUMN product.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3815 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2864 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10794,8 +10757,8 @@ COMMENT ON COLUMN product.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3816 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2865 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10803,8 +10766,8 @@ COMMENT ON COLUMN product.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3817 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2866 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10812,8 +10775,8 @@ COMMENT ON COLUMN product.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3818 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2867 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10821,8 +10784,8 @@ COMMENT ON COLUMN product.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3819 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2868 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10830,8 +10793,8 @@ COMMENT ON COLUMN product.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3820 (class 0 OID 0)
--- Dependencies: 288
+-- TOC entry 2869 (class 0 OID 0)
+-- Dependencies: 224
 -- Name: COLUMN product.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10839,7 +10802,7 @@ COMMENT ON COLUMN product.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 331 (class 1259 OID 56475)
+-- TOC entry 225 (class 1259 OID 83597)
 -- Name: product_composition_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -10852,7 +10815,7 @@ CREATE SEQUENCE product_composition_seq
 
 
 --
--- TOC entry 329 (class 1259 OID 21766)
+-- TOC entry 226 (class 1259 OID 83599)
 -- Name: product_composition; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -10875,8 +10838,8 @@ CREATE TABLE product_composition (
 
 
 --
--- TOC entry 3821 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2870 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: TABLE product_composition; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10884,8 +10847,8 @@ COMMENT ON TABLE product_composition IS 'Table that stores the relationship of p
 
 
 --
--- TOC entry 3822 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2871 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.iproductcompositionid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10893,8 +10856,8 @@ COMMENT ON COLUMN product_composition.iproductcompositionid IS 'ID key';
 
 
 --
--- TOC entry 3823 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2872 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10902,8 +10865,8 @@ COMMENT ON COLUMN product_composition.iproductid IS 'Relation to the table produ
 
 
 --
--- TOC entry 3824 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2873 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.icomponentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10911,8 +10874,8 @@ COMMENT ON COLUMN product_composition.icomponentid IS 'Relation to the table pro
 
 
 --
--- TOC entry 3825 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2874 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.fquantity; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10920,8 +10883,8 @@ COMMENT ON COLUMN product_composition.fquantity IS 'quantity';
 
 
 --
--- TOC entry 3826 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2875 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.bvisible; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10929,8 +10892,8 @@ COMMENT ON COLUMN product_composition.bvisible IS 'Product is visible in the app
 
 
 --
--- TOC entry 3827 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2876 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.sorder; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10938,8 +10901,8 @@ COMMENT ON COLUMN product_composition.sorder IS 'Order for the composition';
 
 
 --
--- TOC entry 3828 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2877 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.boptional; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10947,8 +10910,8 @@ COMMENT ON COLUMN product_composition.boptional IS 'Product is not displayed in 
 
 
 --
--- TOC entry 3829 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2878 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10956,8 +10919,8 @@ COMMENT ON COLUMN product_composition.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3830 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2879 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10965,8 +10928,8 @@ COMMENT ON COLUMN product_composition.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3831 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2880 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10974,8 +10937,8 @@ COMMENT ON COLUMN product_composition.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3832 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2881 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10983,8 +10946,8 @@ COMMENT ON COLUMN product_composition.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3833 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2882 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -10992,8 +10955,8 @@ COMMENT ON COLUMN product_composition.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3834 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2883 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11001,8 +10964,8 @@ COMMENT ON COLUMN product_composition.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3835 (class 0 OID 0)
--- Dependencies: 329
+-- TOC entry 2884 (class 0 OID 0)
+-- Dependencies: 226
 -- Name: COLUMN product_composition.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11010,7 +10973,7 @@ COMMENT ON COLUMN product_composition.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 300 (class 1259 OID 17343)
+-- TOC entry 227 (class 1259 OID 83603)
 -- Name: product_document_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -11023,7 +10986,7 @@ CREATE SEQUENCE product_document_seq
 
 
 --
--- TOC entry 289 (class 1259 OID 17025)
+-- TOC entry 228 (class 1259 OID 83605)
 -- Name: product_document; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11045,8 +11008,8 @@ CREATE TABLE product_document (
 
 
 --
--- TOC entry 3836 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2885 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: TABLE product_document; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11054,8 +11017,8 @@ COMMENT ON TABLE product_document IS 'Table that stores documents of a product';
 
 
 --
--- TOC entry 3837 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2886 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.iproductdocumentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11063,8 +11026,8 @@ COMMENT ON COLUMN product_document.iproductdocumentid IS 'Primary key';
 
 
 --
--- TOC entry 3838 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2887 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11072,8 +11035,8 @@ COMMENT ON COLUMN product_document.iproductid IS 'iproductid: refers to the tabl
 
 
 --
--- TOC entry 3839 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2888 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.idocumentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11081,8 +11044,8 @@ COMMENT ON COLUMN product_document.idocumentid IS 'idocumentidl: refers to the t
 
 
 --
--- TOC entry 3840 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2889 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.sdocumenttypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11090,8 +11053,8 @@ COMMENT ON COLUMN product_document.sdocumenttypeid IS 'sdocumenttypeid: refers t
 
 
 --
--- TOC entry 3841 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2890 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.bmandatory; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11099,8 +11062,8 @@ COMMENT ON COLUMN product_document.bmandatory IS 'Mandatory : 1 = true, 2 = fals
 
 
 --
--- TOC entry 3842 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2891 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11108,8 +11071,8 @@ COMMENT ON COLUMN product_document.sstatus IS 'Status';
 
 
 --
--- TOC entry 3843 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2892 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11117,8 +11080,8 @@ COMMENT ON COLUMN product_document.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3844 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2893 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11126,8 +11089,8 @@ COMMENT ON COLUMN product_document.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3845 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2894 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11135,8 +11098,8 @@ COMMENT ON COLUMN product_document.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3846 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2895 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11144,8 +11107,8 @@ COMMENT ON COLUMN product_document.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3847 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2896 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11153,8 +11116,8 @@ COMMENT ON COLUMN product_document.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3848 (class 0 OID 0)
--- Dependencies: 289
+-- TOC entry 2897 (class 0 OID 0)
+-- Dependencies: 228
 -- Name: COLUMN product_document.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11162,7 +11125,7 @@ COMMENT ON COLUMN product_document.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 285 (class 1259 OID 17010)
+-- TOC entry 229 (class 1259 OID 83609)
 -- Name: product_pricing; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11191,8 +11154,8 @@ CREATE TABLE product_pricing (
 
 
 --
--- TOC entry 3849 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2898 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: TABLE product_pricing; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11200,8 +11163,8 @@ COMMENT ON TABLE product_pricing IS 'Table that stores product prices.';
 
 
 --
--- TOC entry 3850 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2899 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.ipricingid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11209,8 +11172,8 @@ COMMENT ON COLUMN product_pricing.ipricingid IS 'ID key';
 
 
 --
--- TOC entry 3851 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2900 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11218,8 +11181,8 @@ COMMENT ON COLUMN product_pricing.ilocationid IS 'Relation to the table location
 
 
 --
--- TOC entry 3852 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2901 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.spricingtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11227,8 +11190,8 @@ COMMENT ON COLUMN product_pricing.spricingtypeid IS 'Typo pricing, Relation to t
 
 
 --
--- TOC entry 3853 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2902 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11236,8 +11199,8 @@ COMMENT ON COLUMN product_pricing.vdescription IS 'Description';
 
 
 --
--- TOC entry 3854 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2903 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.scurrencyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11245,8 +11208,8 @@ COMMENT ON COLUMN product_pricing.scurrencyid IS 'Currency, Relation to the tabl
 
 
 --
--- TOC entry 3855 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2904 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.fpricecost; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11254,8 +11217,8 @@ COMMENT ON COLUMN product_pricing.fpricecost IS 'Price cost';
 
 
 --
--- TOC entry 3856 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2905 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.fpricetax; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11263,8 +11226,8 @@ COMMENT ON COLUMN product_pricing.fpricetax IS 'Price tax';
 
 
 --
--- TOC entry 3857 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2906 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.fpricetotal; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11272,8 +11235,8 @@ COMMENT ON COLUMN product_pricing.fpricetotal IS 'Price total';
 
 
 --
--- TOC entry 3858 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2907 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.vconcept; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11281,8 +11244,8 @@ COMMENT ON COLUMN product_pricing.vconcept IS 'Concatenated field and separated 
 
 
 --
--- TOC entry 3859 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2908 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11290,8 +11253,8 @@ COMMENT ON COLUMN product_pricing.dstartdate IS 'Price inception date';
 
 
 --
--- TOC entry 3860 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2909 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.dfinishdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11299,8 +11262,8 @@ COMMENT ON COLUMN product_pricing.dfinishdate IS 'Effective end Price';
 
 
 --
--- TOC entry 3861 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2910 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.bvisible; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11308,8 +11271,8 @@ COMMENT ON COLUMN product_pricing.bvisible IS 'Is visible in the app';
 
 
 --
--- TOC entry 3862 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2911 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11317,8 +11280,8 @@ COMMENT ON COLUMN product_pricing.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3863 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2912 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11326,8 +11289,8 @@ COMMENT ON COLUMN product_pricing.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3864 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2913 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11335,8 +11298,8 @@ COMMENT ON COLUMN product_pricing.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3865 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2914 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11344,8 +11307,8 @@ COMMENT ON COLUMN product_pricing.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3866 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2915 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11353,8 +11316,8 @@ COMMENT ON COLUMN product_pricing.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3867 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2916 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11362,8 +11325,8 @@ COMMENT ON COLUMN product_pricing.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3868 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2917 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11371,8 +11334,8 @@ COMMENT ON COLUMN product_pricing.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 3869 (class 0 OID 0)
--- Dependencies: 285
+-- TOC entry 2918 (class 0 OID 0)
+-- Dependencies: 229
 -- Name: COLUMN product_pricing.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11380,7 +11343,7 @@ COMMENT ON COLUMN product_pricing.iproductid IS 'Relation to the product table';
 
 
 --
--- TOC entry 302 (class 1259 OID 17351)
+-- TOC entry 230 (class 1259 OID 83616)
 -- Name: service_rule_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -11393,7 +11356,7 @@ CREATE SEQUENCE service_rule_seq
 
 
 --
--- TOC entry 295 (class 1259 OID 17052)
+-- TOC entry 231 (class 1259 OID 83618)
 -- Name: product_rule; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11412,8 +11375,8 @@ CREATE TABLE product_rule (
 
 
 --
--- TOC entry 3870 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2919 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: TABLE product_rule; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11421,8 +11384,8 @@ COMMENT ON TABLE product_rule IS 'Table that stores the rules for product prices
 
 
 --
--- TOC entry 3871 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2920 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.iproductrule; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11430,8 +11393,8 @@ COMMENT ON COLUMN product_rule.iproductrule IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3872 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2921 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11439,8 +11402,8 @@ COMMENT ON COLUMN product_rule.iproductid IS 'Product ID';
 
 
 --
--- TOC entry 3873 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2922 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11448,8 +11411,8 @@ COMMENT ON COLUMN product_rule.vdescription IS 'Product description';
 
 
 --
--- TOC entry 3874 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2923 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11457,8 +11420,8 @@ COMMENT ON COLUMN product_rule.sstatus IS 'Product Status';
 
 
 --
--- TOC entry 3875 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2924 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11466,8 +11429,8 @@ COMMENT ON COLUMN product_rule.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3876 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2925 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11475,8 +11438,8 @@ COMMENT ON COLUMN product_rule.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3877 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2926 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11484,8 +11447,8 @@ COMMENT ON COLUMN product_rule.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3878 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2927 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11493,8 +11456,8 @@ COMMENT ON COLUMN product_rule.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3879 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2928 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11502,8 +11465,8 @@ COMMENT ON COLUMN product_rule.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3880 (class 0 OID 0)
--- Dependencies: 295
+-- TOC entry 2929 (class 0 OID 0)
+-- Dependencies: 231
 -- Name: COLUMN product_rule.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11511,7 +11474,7 @@ COMMENT ON COLUMN product_rule.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 317 (class 1259 OID 17389)
+-- TOC entry 232 (class 1259 OID 83622)
 -- Name: product_step_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -11524,7 +11487,7 @@ CREATE SEQUENCE product_step_seq
 
 
 --
--- TOC entry 290 (class 1259 OID 17031)
+-- TOC entry 233 (class 1259 OID 83624)
 -- Name: product_step; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11550,8 +11513,8 @@ CREATE TABLE product_step (
 
 
 --
--- TOC entry 3881 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2930 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: TABLE product_step; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11559,8 +11522,8 @@ COMMENT ON TABLE product_step IS 'Table that stores product configuration contro
 
 
 --
--- TOC entry 3882 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2931 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.iproductstepid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11568,8 +11531,8 @@ COMMENT ON COLUMN product_step.iproductstepid IS 'ID key';
 
 
 --
--- TOC entry 3883 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2932 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11577,8 +11540,8 @@ COMMENT ON COLUMN product_step.iproductid IS 'Relation to the table product';
 
 
 --
--- TOC entry 3884 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2933 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.ssteptypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11586,8 +11549,8 @@ COMMENT ON COLUMN product_step.ssteptypeid IS 'Relation to the table systemparam
 
 
 --
--- TOC entry 3885 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2934 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11595,8 +11558,8 @@ COMMENT ON COLUMN product_step.vdescription IS 'Description';
 
 
 --
--- TOC entry 3886 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2935 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.sorden; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11604,8 +11567,8 @@ COMMENT ON COLUMN product_step.sorden IS 'Order record';
 
 
 --
--- TOC entry 3887 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2936 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.ireferenceproductstepid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11613,8 +11576,8 @@ COMMENT ON COLUMN product_step.ireferenceproductstepid IS 'Relation to the table
 
 
 --
--- TOC entry 3888 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2937 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11622,8 +11585,8 @@ COMMENT ON COLUMN product_step.sstatus IS 'Registration Status';
 
 
 --
--- TOC entry 3889 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2938 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.bmandatory; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11631,8 +11594,8 @@ COMMENT ON COLUMN product_step.bmandatory IS 'Is mandatory';
 
 
 --
--- TOC entry 3890 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2939 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.bvisible; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11640,8 +11603,8 @@ COMMENT ON COLUMN product_step.bvisible IS 'Is visible in the app';
 
 
 --
--- TOC entry 3891 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2940 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.vfunctionname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11649,8 +11612,8 @@ COMMENT ON COLUMN product_step.vfunctionname IS 'Executes a function on app';
 
 
 --
--- TOC entry 3892 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2941 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.ifunctionproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11658,8 +11621,8 @@ COMMENT ON COLUMN product_step.ifunctionproductid IS 'Id product';
 
 
 --
--- TOC entry 3893 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2942 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11667,8 +11630,8 @@ COMMENT ON COLUMN product_step.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3894 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2943 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11676,8 +11639,8 @@ COMMENT ON COLUMN product_step.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3895 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2944 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11685,8 +11648,8 @@ COMMENT ON COLUMN product_step.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3896 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2945 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11694,8 +11657,8 @@ COMMENT ON COLUMN product_step.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3897 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2946 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11703,8 +11666,8 @@ COMMENT ON COLUMN product_step.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3898 (class 0 OID 0)
--- Dependencies: 290
+-- TOC entry 2947 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: COLUMN product_step.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11712,7 +11675,7 @@ COMMENT ON COLUMN product_step.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 339 (class 1259 OID 291401)
+-- TOC entry 234 (class 1259 OID 83631)
 -- Name: request_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -11725,7 +11688,7 @@ CREATE SEQUENCE request_seq
 
 
 --
--- TOC entry 291 (class 1259 OID 17034)
+-- TOC entry 235 (class 1259 OID 83633)
 -- Name: request; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11754,8 +11717,8 @@ CREATE TABLE request (
 
 
 --
--- TOC entry 3899 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2948 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: TABLE request; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11763,8 +11726,8 @@ COMMENT ON TABLE request IS 'Table that stores information of all request';
 
 
 --
--- TOC entry 3900 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2949 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.irequestid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11772,8 +11735,8 @@ COMMENT ON COLUMN request.irequestid IS 'Primary auto-increment key';
 
 
 --
--- TOC entry 3901 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2950 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.ipaymentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11781,8 +11744,8 @@ COMMENT ON COLUMN request.ipaymentid IS 'Referring to table payment';
 
 
 --
--- TOC entry 3902 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2951 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.ipartyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11790,8 +11753,8 @@ COMMENT ON COLUMN request.ipartyid IS 'Referring to table party';
 
 
 --
--- TOC entry 3903 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2952 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11799,8 +11762,8 @@ COMMENT ON COLUMN request.iproductid IS 'Referring to table product';
 
 
 --
--- TOC entry 3904 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2953 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.ireferencerequestid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11808,8 +11771,8 @@ COMMENT ON COLUMN request.ireferencerequestid IS 'Referring to table request whe
 
 
 --
--- TOC entry 3905 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2954 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11817,8 +11780,8 @@ COMMENT ON COLUMN request.dstartdate IS 'Starting Date Request';
 
 
 --
--- TOC entry 3906 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2955 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.dfinishdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11826,8 +11789,8 @@ COMMENT ON COLUMN request.dfinishdate IS 'Finish Date Request';
 
 
 --
--- TOC entry 3907 (class 0 OID 0)
--- Dependencies: 291
+-- TOC entry 2956 (class 0 OID 0)
+-- Dependencies: 235
 -- Name: COLUMN request.iproductstepid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11835,7 +11798,7 @@ COMMENT ON COLUMN request.iproductstepid IS 'Referring to table prodect step';
 
 
 --
--- TOC entry 338 (class 1259 OID 291399)
+-- TOC entry 236 (class 1259 OID 83640)
 -- Name: request_detail_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -11848,7 +11811,7 @@ CREATE SEQUENCE request_detail_seq
 
 
 --
--- TOC entry 292 (class 1259 OID 17037)
+-- TOC entry 237 (class 1259 OID 83642)
 -- Name: request_detail; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -11890,8 +11853,8 @@ CREATE TABLE request_detail (
 
 
 --
--- TOC entry 3908 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2957 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: TABLE request_detail; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11899,8 +11862,8 @@ COMMENT ON TABLE request_detail IS 'Table that stores information of all request
 
 
 --
--- TOC entry 3909 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2958 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.irequestdetailid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11908,8 +11871,8 @@ COMMENT ON COLUMN request_detail.irequestdetailid IS 'Primary auto-increment key
 
 
 --
--- TOC entry 3910 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2959 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.irequestid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11917,8 +11880,8 @@ COMMENT ON COLUMN request_detail.irequestid IS 'Referring to table request';
 
 
 --
--- TOC entry 3911 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2960 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.ivehicleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11926,8 +11889,8 @@ COMMENT ON COLUMN request_detail.ivehicleid IS 'Referring to table vehicle';
 
 
 --
--- TOC entry 3912 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2961 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.iownerid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11935,8 +11898,8 @@ COMMENT ON COLUMN request_detail.iownerid IS 'Referring to table party';
 
 
 --
--- TOC entry 3913 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2962 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.irequestlicenseid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11944,8 +11907,8 @@ COMMENT ON COLUMN request_detail.irequestlicenseid IS 'Id Driver´s License';
 
 
 --
--- TOC entry 3914 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2963 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.sdriverlicensetypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11953,8 +11916,8 @@ COMMENT ON COLUMN request_detail.sdriverlicensetypeid IS 'Referring to table sys
 
 
 --
--- TOC entry 3915 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2964 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.smotocyclegroupid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11962,8 +11925,8 @@ COMMENT ON COLUMN request_detail.smotocyclegroupid IS 'Referring to table system
 
 
 --
--- TOC entry 3916 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2965 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.smotorvehiclegroupid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11971,8 +11934,8 @@ COMMENT ON COLUMN request_detail.smotorvehiclegroupid IS 'Referring to table sys
 
 
 --
--- TOC entry 3917 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2966 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.iproductid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11980,8 +11943,8 @@ COMMENT ON COLUMN request_detail.iproductid IS 'Referring to table product';
 
 
 --
--- TOC entry 3918 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2967 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.ipricingid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11989,8 +11952,8 @@ COMMENT ON COLUMN request_detail.ipricingid IS 'Referring to table pricing';
 
 
 --
--- TOC entry 3919 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2968 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.igenevadetailterritoryid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -11998,8 +11961,8 @@ COMMENT ON COLUMN request_detail.igenevadetailterritoryid IS 'Referring to table
 
 
 --
--- TOC entry 3920 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2969 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vgenevadetailsubterritory; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12007,8 +11970,8 @@ COMMENT ON COLUMN request_detail.vgenevadetailsubterritory IS 'Descripcion the s
 
 
 --
--- TOC entry 3921 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2970 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.svisitpermitdurationday; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12016,8 +11979,8 @@ COMMENT ON COLUMN request_detail.svisitpermitdurationday IS 'Duration visit perm
 
 
 --
--- TOC entry 3922 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2971 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.snumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12025,8 +11988,8 @@ COMMENT ON COLUMN request_detail.snumber IS 'Number Driver´s License';
 
 
 --
--- TOC entry 3923 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2972 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.dissuedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12034,8 +11997,8 @@ COMMENT ON COLUMN request_detail.dissuedate IS 'Issued Date Request Detail';
 
 
 --
--- TOC entry 3924 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2973 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.dexpirydate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12043,8 +12006,8 @@ COMMENT ON COLUMN request_detail.dexpirydate IS 'Expire Date Request Detail';
 
 
 --
--- TOC entry 3925 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2974 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vcurrenttab; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12052,8 +12015,8 @@ COMMENT ON COLUMN request_detail.vcurrenttab IS 'Current tab the request detail'
 
 
 --
--- TOC entry 3926 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2975 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.bwaived; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12061,8 +12024,8 @@ COMMENT ON COLUMN request_detail.bwaived IS 'Exemption from payment for a servic
 
 
 --
--- TOC entry 3927 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2976 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.fpricecost; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12070,8 +12033,8 @@ COMMENT ON COLUMN request_detail.fpricecost IS 'It represents the price cost';
 
 
 --
--- TOC entry 3928 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2977 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.fpricetax; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12079,8 +12042,8 @@ COMMENT ON COLUMN request_detail.fpricetax IS 'It represents the price tax';
 
 
 --
--- TOC entry 3929 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2978 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.fpricetotal; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12088,8 +12051,8 @@ COMMENT ON COLUMN request_detail.fpricetotal IS 'It represents the sum of the pr
 
 
 --
--- TOC entry 3930 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2979 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vnumberplate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12097,8 +12060,8 @@ COMMENT ON COLUMN request_detail.vnumberplate IS 'Number Plate Vehicle';
 
 
 --
--- TOC entry 3931 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2980 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vcoment; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12106,8 +12069,8 @@ COMMENT ON COLUMN request_detail.vcoment IS 'Coment Request Detail';
 
 
 --
--- TOC entry 3932 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2981 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vplatepreview; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12116,8 +12079,8 @@ Format: Mask | Layout | Font Family | Font size | Font Colour';
 
 
 --
--- TOC entry 3933 (class 0 OID 0)
--- Dependencies: 292
+-- TOC entry 2982 (class 0 OID 0)
+-- Dependencies: 237
 -- Name: COLUMN request_detail.vjson; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12125,7 +12088,7 @@ COMMENT ON COLUMN request_detail.vjson IS 'Object JSON';
 
 
 --
--- TOC entry 304 (class 1259 OID 17359)
+-- TOC entry 238 (class 1259 OID 83649)
 -- Name: request_document_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -12138,7 +12101,7 @@ CREATE SEQUENCE request_document_seq
 
 
 --
--- TOC entry 332 (class 1259 OID 64174)
+-- TOC entry 239 (class 1259 OID 83651)
 -- Name: request_document; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12162,8 +12125,8 @@ CREATE TABLE request_document (
 
 
 --
--- TOC entry 3934 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2983 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: TABLE request_document; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12171,8 +12134,8 @@ COMMENT ON TABLE request_document IS 'Table that stores information of all reque
 
 
 --
--- TOC entry 3935 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2984 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.irequestdocument; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12180,8 +12143,8 @@ COMMENT ON COLUMN request_document.irequestdocument IS 'Primary auto-increment k
 
 
 --
--- TOC entry 3936 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2985 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.irequestdetailid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12189,8 +12152,8 @@ COMMENT ON COLUMN request_document.irequestdetailid IS 'Referring to table reque
 
 
 --
--- TOC entry 3937 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2986 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.idocumentid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12198,8 +12161,8 @@ COMMENT ON COLUMN request_document.idocumentid IS 'Referring to table document';
 
 
 --
--- TOC entry 3938 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2987 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.vfilename; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12207,8 +12170,8 @@ COMMENT ON COLUMN request_document.vfilename IS 'File Name Document';
 
 
 --
--- TOC entry 3939 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2988 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.dissuedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12216,8 +12179,8 @@ COMMENT ON COLUMN request_document.dissuedate IS 'Date of issued Load document';
 
 
 --
--- TOC entry 3940 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2989 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.vfilepath; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12225,8 +12188,8 @@ COMMENT ON COLUMN request_document.vfilepath IS 'File path Document';
 
 
 --
--- TOC entry 3941 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2990 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.bprint; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12234,8 +12197,8 @@ COMMENT ON COLUMN request_document.bprint IS 'Indicates whether printed';
 
 
 --
--- TOC entry 3942 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2991 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.dprint; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12243,8 +12206,8 @@ COMMENT ON COLUMN request_document.dprint IS 'Indicates print date';
 
 
 --
--- TOC entry 3943 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2992 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12252,8 +12215,8 @@ COMMENT ON COLUMN request_document.sstatus IS 'Status Documento 1= Active; 0= In
 
 
 --
--- TOC entry 3944 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2993 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12261,8 +12224,8 @@ COMMENT ON COLUMN request_document.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3945 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2994 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12270,8 +12233,8 @@ COMMENT ON COLUMN request_document.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3946 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2995 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12279,8 +12242,8 @@ COMMENT ON COLUMN request_document.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3947 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2996 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12288,8 +12251,8 @@ COMMENT ON COLUMN request_document.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3948 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2997 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12297,8 +12260,8 @@ COMMENT ON COLUMN request_document.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3949 (class 0 OID 0)
--- Dependencies: 332
+-- TOC entry 2998 (class 0 OID 0)
+-- Dependencies: 239
 -- Name: COLUMN request_document.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12306,7 +12269,7 @@ COMMENT ON COLUMN request_document.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 340 (class 1259 OID 291457)
+-- TOC entry 240 (class 1259 OID 83655)
 -- Name: request_history_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -12319,7 +12282,7 @@ CREATE SEQUENCE request_history_seq
 
 
 --
--- TOC entry 293 (class 1259 OID 17043)
+-- TOC entry 241 (class 1259 OID 83657)
 -- Name: request_history; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12338,8 +12301,8 @@ CREATE TABLE request_history (
 
 
 --
--- TOC entry 3950 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 2999 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: TABLE request_history; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12347,8 +12310,8 @@ COMMENT ON TABLE request_history IS 'Table that stores information of all reques
 
 
 --
--- TOC entry 3951 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3000 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.irequesthistoryid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12356,8 +12319,8 @@ COMMENT ON COLUMN request_history.irequesthistoryid IS 'Primary auto-increment k
 
 
 --
--- TOC entry 3952 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3001 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.irequestid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12365,8 +12328,8 @@ COMMENT ON COLUMN request_history.irequestid IS 'Referring to table request';
 
 
 --
--- TOC entry 3953 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3002 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.vobservation; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12374,8 +12337,8 @@ COMMENT ON COLUMN request_history.vobservation IS 'observation request observati
 
 
 --
--- TOC entry 3954 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3003 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12383,8 +12346,8 @@ COMMENT ON COLUMN request_history.sstatus IS 'Status Request; Referring to table
 
 
 --
--- TOC entry 3955 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3004 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12392,8 +12355,8 @@ COMMENT ON COLUMN request_history.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3956 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3005 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12401,8 +12364,8 @@ COMMENT ON COLUMN request_history.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3957 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3006 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12410,8 +12373,8 @@ COMMENT ON COLUMN request_history.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3958 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3007 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12419,8 +12382,8 @@ COMMENT ON COLUMN request_history.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3959 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3008 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12428,8 +12391,8 @@ COMMENT ON COLUMN request_history.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3960 (class 0 OID 0)
--- Dependencies: 293
+-- TOC entry 3009 (class 0 OID 0)
+-- Dependencies: 241
 -- Name: COLUMN request_history.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12437,7 +12400,7 @@ COMMENT ON COLUMN request_history.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 336 (class 1259 OID 176454)
+-- TOC entry 242 (class 1259 OID 83664)
 -- Name: request_license_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -12450,7 +12413,7 @@ CREATE SEQUENCE request_license_seq
 
 
 --
--- TOC entry 335 (class 1259 OID 166942)
+-- TOC entry 243 (class 1259 OID 83666)
 -- Name: request_license; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12478,8 +12441,8 @@ CREATE TABLE request_license (
 
 
 --
--- TOC entry 3961 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3010 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: TABLE request_license; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12487,8 +12450,8 @@ COMMENT ON TABLE request_license IS 'Table of the general data of the license';
 
 
 --
--- TOC entry 3962 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3011 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.irequestlicenseid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12496,8 +12459,8 @@ COMMENT ON COLUMN request_license.irequestlicenseid IS 'Primary Key';
 
 
 --
--- TOC entry 3963 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3012 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.slicensetypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12505,8 +12468,8 @@ COMMENT ON COLUMN request_license.slicensetypeid IS 'Type of License';
 
 
 --
--- TOC entry 3964 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3013 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12514,8 +12477,8 @@ COMMENT ON COLUMN request_license.dstartdate IS 'Issued Date License';
 
 
 --
--- TOC entry 3965 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3014 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.dexpirydate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12523,8 +12486,8 @@ COMMENT ON COLUMN request_license.dexpirydate IS 'Expire Date License';
 
 
 --
--- TOC entry 3966 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3015 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.vnumberlicense; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12532,8 +12495,8 @@ COMMENT ON COLUMN request_license.vnumberlicense IS 'Expire Date License';
 
 
 --
--- TOC entry 3967 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3016 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.splatetypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12541,8 +12504,8 @@ COMMENT ON COLUMN request_license.splatetypeid IS 'Type of Plate';
 
 
 --
--- TOC entry 3968 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3017 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.vnumberplate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12550,8 +12513,8 @@ COMMENT ON COLUMN request_license.vnumberplate IS 'Number Plate Vehicle';
 
 
 --
--- TOC entry 3969 (class 0 OID 0)
--- Dependencies: 335
+-- TOC entry 3018 (class 0 OID 0)
+-- Dependencies: 243
 -- Name: COLUMN request_license.vplatepreview; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12559,7 +12522,7 @@ COMMENT ON COLUMN request_license.vplatepreview IS 'Plate type configuration lay
 
 
 --
--- TOC entry 311 (class 1259 OID 17375)
+-- TOC entry 244 (class 1259 OID 83673)
 -- Name: schedule_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -12572,7 +12535,7 @@ CREATE SEQUENCE schedule_seq
 
 
 --
--- TOC entry 294 (class 1259 OID 17049)
+-- TOC entry 245 (class 1259 OID 83675)
 -- Name: schedule; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12595,8 +12558,8 @@ CREATE TABLE schedule (
 
 
 --
--- TOC entry 3970 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3019 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: TABLE schedule; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12604,8 +12567,8 @@ COMMENT ON TABLE schedule IS 'Table that stores information of all schedule';
 
 
 --
--- TOC entry 3971 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3020 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.ischeduleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12613,8 +12576,8 @@ COMMENT ON COLUMN schedule.ischeduleid IS 'Primary key to identify the location'
 
 
 --
--- TOC entry 3972 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3021 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.dscheduledate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12622,8 +12585,8 @@ COMMENT ON COLUMN schedule.dscheduledate IS 'Schedule description';
 
 
 --
--- TOC entry 3973 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3022 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.sdayofweekid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12631,8 +12594,8 @@ COMMENT ON COLUMN schedule.sdayofweekid IS 'Day of week Id';
 
 
 --
--- TOC entry 3974 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3023 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12640,8 +12603,8 @@ COMMENT ON COLUMN schedule.sstatus IS 'Status';
 
 
 --
--- TOC entry 3975 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3024 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12649,8 +12612,8 @@ COMMENT ON COLUMN schedule.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3976 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3025 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12658,8 +12621,8 @@ COMMENT ON COLUMN schedule.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3977 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3026 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12667,8 +12630,8 @@ COMMENT ON COLUMN schedule.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 3978 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3027 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12676,8 +12639,8 @@ COMMENT ON COLUMN schedule.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 3979 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3028 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12685,8 +12648,8 @@ COMMENT ON COLUMN schedule.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 3980 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3029 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12694,8 +12657,8 @@ COMMENT ON COLUMN schedule.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 3981 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3030 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.iofficeexaminationtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12703,8 +12666,8 @@ COMMENT ON COLUMN schedule.iofficeexaminationtypeid IS 'Referring to table offic
 
 
 --
--- TOC entry 3982 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3031 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.ivacant; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12712,8 +12675,8 @@ COMMENT ON COLUMN schedule.ivacant IS 'number vacant for schedule';
 
 
 --
--- TOC entry 3983 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3032 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.ttimeday; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12721,8 +12684,8 @@ COMMENT ON COLUMN schedule.ttimeday IS 'time of the day';
 
 
 --
--- TOC entry 3984 (class 0 OID 0)
--- Dependencies: 294
+-- TOC entry 3033 (class 0 OID 0)
+-- Dependencies: 245
 -- Name: COLUMN schedule.ttimeendday; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12730,7 +12693,7 @@ COMMENT ON COLUMN schedule.ttimeendday IS 'time of the end day';
 
 
 --
--- TOC entry 325 (class 1259 OID 21439)
+-- TOC entry 246 (class 1259 OID 83679)
 -- Name: systemaudit; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12750,8 +12713,8 @@ CREATE TABLE systemaudit (
 
 
 --
--- TOC entry 3985 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3034 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: TABLE systemaudit; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12759,8 +12722,8 @@ COMMENT ON TABLE systemaudit IS 'Table that stores information of all system aud
 
 
 --
--- TOC entry 3986 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3035 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.ieventid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12768,8 +12731,8 @@ COMMENT ON COLUMN systemaudit.ieventid IS 'Primary key';
 
 
 --
--- TOC entry 3987 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3036 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.seventtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12778,8 +12741,8 @@ Stores references to the types of event';
 
 
 --
--- TOC entry 3988 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3037 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.sprocessid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12788,8 +12751,8 @@ Stores references to the process of system';
 
 
 --
--- TOC entry 3989 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3038 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.staskid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12798,8 +12761,8 @@ Stores references to the task of system';
 
 
 --
--- TOC entry 3990 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3039 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.sactionid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12808,8 +12771,8 @@ Stores references to the action of system';
 
 
 --
--- TOC entry 3991 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3040 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.sresultid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12818,8 +12781,8 @@ Stores references to the result of system';
 
 
 --
--- TOC entry 3992 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3041 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.vmessage; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12827,8 +12790,8 @@ COMMENT ON COLUMN systemaudit.vmessage IS 'Stores the message thrown by the syst
 
 
 --
--- TOC entry 3993 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3042 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.vhostname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12836,8 +12799,8 @@ COMMENT ON COLUMN systemaudit.vhostname IS 'Stores the host name that generated 
 
 
 --
--- TOC entry 3994 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3043 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12845,8 +12808,8 @@ COMMENT ON COLUMN systemaudit.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 3995 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3044 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12854,8 +12817,8 @@ COMMENT ON COLUMN systemaudit.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 3996 (class 0 OID 0)
--- Dependencies: 325
+-- TOC entry 3045 (class 0 OID 0)
+-- Dependencies: 246
 -- Name: COLUMN systemaudit.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12863,7 +12826,7 @@ COMMENT ON COLUMN systemaudit.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 324 (class 1259 OID 21437)
+-- TOC entry 247 (class 1259 OID 83685)
 -- Name: systemaudit_ieventid_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -12876,8 +12839,8 @@ CREATE SEQUENCE systemaudit_ieventid_seq
 
 
 --
--- TOC entry 3997 (class 0 OID 0)
--- Dependencies: 324
+-- TOC entry 3046 (class 0 OID 0)
+-- Dependencies: 247
 -- Name: systemaudit_ieventid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -12885,7 +12848,7 @@ ALTER SEQUENCE systemaudit_ieventid_seq OWNED BY systemaudit.ieventid;
 
 
 --
--- TOC entry 333 (class 1259 OID 106225)
+-- TOC entry 248 (class 1259 OID 83687)
 -- Name: systemparameter; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -12908,8 +12871,8 @@ CREATE TABLE systemparameter (
 
 
 --
--- TOC entry 3998 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3047 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: TABLE systemparameter; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12917,8 +12880,8 @@ COMMENT ON TABLE systemparameter IS 'Table that stores the system parameters.';
 
 
 --
--- TOC entry 3999 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3048 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.iparameterid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12926,8 +12889,8 @@ COMMENT ON COLUMN systemparameter.iparameterid IS 'ID key';
 
 
 --
--- TOC entry 4000 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3049 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.igroupid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12935,8 +12898,8 @@ COMMENT ON COLUMN systemparameter.igroupid IS 'ID grouper';
 
 
 --
--- TOC entry 4001 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3050 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12944,8 +12907,8 @@ COMMENT ON COLUMN systemparameter.vdescription IS 'description parameter';
 
 
 --
--- TOC entry 4002 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3051 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.vvalue; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12953,8 +12916,8 @@ COMMENT ON COLUMN systemparameter.vvalue IS 'Value';
 
 
 --
--- TOC entry 4003 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3052 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.vreferenceid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12962,8 +12925,8 @@ COMMENT ON COLUMN systemparameter.vreferenceid IS 'Field to link any table or pl
 
 
 --
--- TOC entry 4004 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3053 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.sorder; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12971,8 +12934,8 @@ COMMENT ON COLUMN systemparameter.sorder IS 'Orders the fields in each group';
 
 
 --
--- TOC entry 4005 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3054 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.svisible; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12980,8 +12943,8 @@ COMMENT ON COLUMN systemparameter.svisible IS 'Is visible =  1';
 
 
 --
--- TOC entry 4006 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3055 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12989,8 +12952,8 @@ COMMENT ON COLUMN systemparameter.sstatus IS 'Is activo = 1';
 
 
 --
--- TOC entry 4007 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3056 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -12998,8 +12961,8 @@ COMMENT ON COLUMN systemparameter.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 4008 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3057 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13007,8 +12970,8 @@ COMMENT ON COLUMN systemparameter.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 4009 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3058 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13016,8 +12979,8 @@ COMMENT ON COLUMN systemparameter.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 4010 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3059 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13025,8 +12988,8 @@ COMMENT ON COLUMN systemparameter.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 4011 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3060 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13034,8 +12997,8 @@ COMMENT ON COLUMN systemparameter.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 4012 (class 0 OID 0)
--- Dependencies: 333
+-- TOC entry 3061 (class 0 OID 0)
+-- Dependencies: 248
 -- Name: COLUMN systemparameter.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13043,7 +13006,7 @@ COMMENT ON COLUMN systemparameter.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 341 (class 1259 OID 351446)
+-- TOC entry 249 (class 1259 OID 83693)
 -- Name: user_location_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13056,7 +13019,7 @@ CREATE SEQUENCE user_location_seq
 
 
 --
--- TOC entry 342 (class 1259 OID 363925)
+-- TOC entry 250 (class 1259 OID 83695)
 -- Name: user_location; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13077,8 +13040,8 @@ CREATE TABLE user_location (
 
 
 --
--- TOC entry 4013 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 3062 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: TABLE user_location; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13086,8 +13049,8 @@ COMMENT ON TABLE user_location IS 'Table that stores the relationship between us
 
 
 --
--- TOC entry 4014 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 3063 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: COLUMN user_location.iuserlocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13095,8 +13058,8 @@ COMMENT ON COLUMN user_location.iuserlocationid IS 'ID';
 
 
 --
--- TOC entry 4015 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 3064 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: COLUMN user_location.iuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13104,8 +13067,8 @@ COMMENT ON COLUMN user_location.iuserid IS 'ID user';
 
 
 --
--- TOC entry 4016 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 3065 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: COLUMN user_location.ilocationid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13113,8 +13076,8 @@ COMMENT ON COLUMN user_location.ilocationid IS 'ID location';
 
 
 --
--- TOC entry 4017 (class 0 OID 0)
--- Dependencies: 342
+-- TOC entry 3066 (class 0 OID 0)
+-- Dependencies: 250
 -- Name: COLUMN user_location.vusername; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13122,7 +13085,7 @@ COMMENT ON COLUMN user_location.vusername IS 'User Name';
 
 
 --
--- TOC entry 312 (class 1259 OID 17377)
+-- TOC entry 251 (class 1259 OID 83699)
 -- Name: vehicle_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13135,7 +13098,7 @@ CREATE SEQUENCE vehicle_seq
 
 
 --
--- TOC entry 330 (class 1259 OID 22693)
+-- TOC entry 252 (class 1259 OID 83701)
 -- Name: vehicle; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13182,8 +13145,8 @@ CREATE TABLE vehicle (
 
 
 --
--- TOC entry 4018 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3067 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: TABLE vehicle; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13191,8 +13154,8 @@ COMMENT ON TABLE vehicle IS 'Table of the general data of the vehicle';
 
 
 --
--- TOC entry 4019 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3068 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.ivehicleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13200,8 +13163,8 @@ COMMENT ON COLUMN vehicle.ivehicleid IS 'Primary Key';
 
 
 --
--- TOC entry 4020 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3069 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vvehiclecode; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13209,8 +13172,8 @@ COMMENT ON COLUMN vehicle.vvehiclecode IS 'Vehicle category code: refers to the 
 
 
 --
--- TOC entry 4021 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3070 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.scategorytypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13218,8 +13181,8 @@ COMMENT ON COLUMN vehicle.scategorytypeid IS 'Vehicle category type: refers to t
 
 
 --
--- TOC entry 4022 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3071 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.sfuelsourcetypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13227,8 +13190,8 @@ COMMENT ON COLUMN vehicle.sfuelsourcetypeid IS 'Fuel source type: refers to the 
 
 
 --
--- TOC entry 4023 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3072 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.sprimarycolourid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13236,8 +13199,8 @@ COMMENT ON COLUMN vehicle.sprimarycolourid IS 'Primary Color: refers to the tabl
 
 
 --
--- TOC entry 4024 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3073 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.ssecondarycolourid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13245,8 +13208,8 @@ COMMENT ON COLUMN vehicle.ssecondarycolourid IS 'Secondary Color: refers to the 
 
 
 --
--- TOC entry 4025 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3074 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.bnew; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13254,8 +13217,8 @@ COMMENT ON COLUMN vehicle.bnew IS 'Identifies whether the vehicle is new';
 
 
 --
--- TOC entry 4026 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3075 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vusedby; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13263,8 +13226,8 @@ COMMENT ON COLUMN vehicle.vusedby IS 'Identifies whether the vehicle is used';
 
 
 --
--- TOC entry 4027 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3076 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.downedsince; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13272,8 +13235,8 @@ COMMENT ON COLUMN vehicle.downedsince IS 'Date owned since';
 
 
 --
--- TOC entry 4028 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3077 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.venginenumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13281,8 +13244,8 @@ COMMENT ON COLUMN vehicle.venginenumber IS 'Engine number';
 
 
 --
--- TOC entry 4029 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3078 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iseatingcapacity; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13290,8 +13253,8 @@ COMMENT ON COLUMN vehicle.iseatingcapacity IS 'Seating capacity';
 
 
 --
--- TOC entry 4030 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3079 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.smaximunload; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13299,8 +13262,8 @@ COMMENT ON COLUMN vehicle.smaximunload IS 'Maximum load';
 
 
 --
--- TOC entry 4031 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3080 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.ddatestolen; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13308,8 +13271,8 @@ COMMENT ON COLUMN vehicle.ddatestolen IS 'Date stolen';
 
 
 --
--- TOC entry 4032 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3081 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.fgrossweight; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13317,8 +13280,8 @@ COMMENT ON COLUMN vehicle.fgrossweight IS 'Gross weight';
 
 
 --
--- TOC entry 4033 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3082 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.funladenweigth; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13326,8 +13289,8 @@ COMMENT ON COLUMN vehicle.funladenweigth IS 'Unladen weight';
 
 
 --
--- TOC entry 4034 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3083 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vexportdetails; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13335,8 +13298,8 @@ COMMENT ON COLUMN vehicle.vexportdetails IS 'Export details';
 
 
 --
--- TOC entry 4035 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3084 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.imakeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13344,8 +13307,8 @@ COMMENT ON COLUMN vehicle.imakeid IS 'Make of vehicle Fuel: refers to the table 
 
 
 --
--- TOC entry 4036 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3085 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.imodelid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13353,8 +13316,8 @@ COMMENT ON COLUMN vehicle.imodelid IS 'Model of vehicle Fuel: refers to the tabl
 
 
 --
--- TOC entry 4037 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3086 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iversionid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13362,8 +13325,8 @@ COMMENT ON COLUMN vehicle.iversionid IS 'Versino of vehicle Fuel: refers to the 
 
 
 --
--- TOC entry 4038 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3087 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.smanufacturingyear; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13371,8 +13334,8 @@ COMMENT ON COLUMN vehicle.smanufacturingyear IS 'Manufacturing year';
 
 
 --
--- TOC entry 4039 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3088 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.sseatnumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13380,8 +13343,8 @@ COMMENT ON COLUMN vehicle.sseatnumber IS 'Seat number';
 
 
 --
--- TOC entry 4040 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3089 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.spassengernumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13389,8 +13352,8 @@ COMMENT ON COLUMN vehicle.spassengernumber IS 'Passenger number';
 
 
 --
--- TOC entry 4041 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3090 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.ftravellingwidthfeet; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13398,8 +13361,8 @@ COMMENT ON COLUMN vehicle.ftravellingwidthfeet IS 'Traveling width feet';
 
 
 --
--- TOC entry 4042 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3091 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.foveralllengthfeet; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13407,8 +13370,8 @@ COMMENT ON COLUMN vehicle.foveralllengthfeet IS 'Overall length feet';
 
 
 --
--- TOC entry 4043 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3092 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.shanddriveid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13416,8 +13379,8 @@ COMMENT ON COLUMN vehicle.shanddriveid IS 'Hand Drive';
 
 
 --
--- TOC entry 4044 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3093 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vtrailer; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13425,8 +13388,8 @@ COMMENT ON COLUMN vehicle.vtrailer IS 'Trailer';
 
 
 --
--- TOC entry 4045 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3094 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iimportfrom; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13434,8 +13397,8 @@ COMMENT ON COLUMN vehicle.iimportfrom IS 'Import from';
 
 
 --
--- TOC entry 4046 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3095 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vorigin; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13443,8 +13406,8 @@ COMMENT ON COLUMN vehicle.vorigin IS 'Origin';
 
 
 --
--- TOC entry 4047 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3096 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vvinnumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13452,8 +13415,8 @@ COMMENT ON COLUMN vehicle.vvinnumber IS 'VIN number of vehicle';
 
 
 --
--- TOC entry 4048 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3097 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.splatetypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13461,8 +13424,8 @@ COMMENT ON COLUMN vehicle.splatetypeid IS 'Tipo de placa';
 
 
 --
--- TOC entry 4049 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3098 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iownerid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13470,8 +13433,8 @@ COMMENT ON COLUMN vehicle.iownerid IS 'Current Owner of vehicle';
 
 
 --
--- TOC entry 4050 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3099 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13479,8 +13442,8 @@ COMMENT ON COLUMN vehicle.sstatus IS 'Status of vehicle ';
 
 
 --
--- TOC entry 4051 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3100 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13488,8 +13451,8 @@ COMMENT ON COLUMN vehicle.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 4052 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3101 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13497,8 +13460,8 @@ COMMENT ON COLUMN vehicle.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 4053 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3102 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13506,8 +13469,8 @@ COMMENT ON COLUMN vehicle.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 4054 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3103 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13515,8 +13478,8 @@ COMMENT ON COLUMN vehicle.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 4055 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3104 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13524,8 +13487,8 @@ COMMENT ON COLUMN vehicle.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 4056 (class 0 OID 0)
--- Dependencies: 330
+-- TOC entry 3105 (class 0 OID 0)
+-- Dependencies: 252
 -- Name: COLUMN vehicle.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13533,7 +13496,7 @@ COMMENT ON COLUMN vehicle.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 314 (class 1259 OID 17381)
+-- TOC entry 253 (class 1259 OID 83708)
 -- Name: vehicle_lienbank_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13546,7 +13509,7 @@ CREATE SEQUENCE vehicle_lienbank_seq
 
 
 --
--- TOC entry 298 (class 1259 OID 17067)
+-- TOC entry 254 (class 1259 OID 83710)
 -- Name: vehicle_banklien; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13567,8 +13530,8 @@ CREATE TABLE vehicle_banklien (
 
 
 --
--- TOC entry 4057 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3106 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: TABLE vehicle_banklien; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13576,8 +13539,8 @@ COMMENT ON TABLE vehicle_banklien IS 'Table that stores Vehicle bank lien';
 
 
 --
--- TOC entry 4058 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3107 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.ibanklienid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13585,8 +13548,8 @@ COMMENT ON COLUMN vehicle_banklien.ibanklienid IS 'Primary Key';
 
 
 --
--- TOC entry 4059 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3108 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.ivehicleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13594,8 +13557,8 @@ COMMENT ON COLUMN vehicle_banklien.ivehicleid IS 'ivehicleid: refers to the tabl
 
 
 --
--- TOC entry 4060 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3109 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.vphonenumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13603,8 +13566,8 @@ COMMENT ON COLUMN vehicle_banklien.vphonenumber IS 'Phone number';
 
 
 --
--- TOC entry 4061 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3110 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.dstartdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13612,8 +13575,8 @@ COMMENT ON COLUMN vehicle_banklien.dstartdate IS 'Start Date';
 
 
 --
--- TOC entry 4062 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3111 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.ilienholderid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13621,8 +13584,8 @@ COMMENT ON COLUMN vehicle_banklien.ilienholderid IS 'Lienholder ID';
 
 
 --
--- TOC entry 4063 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3112 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13630,8 +13593,8 @@ COMMENT ON COLUMN vehicle_banklien.sstatus IS 'Status';
 
 
 --
--- TOC entry 4064 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3113 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13639,8 +13602,8 @@ COMMENT ON COLUMN vehicle_banklien.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 4065 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3114 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13648,8 +13611,8 @@ COMMENT ON COLUMN vehicle_banklien.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 4066 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3115 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13657,8 +13620,8 @@ COMMENT ON COLUMN vehicle_banklien.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 4067 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3116 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13666,8 +13629,8 @@ COMMENT ON COLUMN vehicle_banklien.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 4068 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3117 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13675,8 +13638,8 @@ COMMENT ON COLUMN vehicle_banklien.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 4069 (class 0 OID 0)
--- Dependencies: 298
+-- TOC entry 3118 (class 0 OID 0)
+-- Dependencies: 254
 -- Name: COLUMN vehicle_banklien.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13684,7 +13647,7 @@ COMMENT ON COLUMN vehicle_banklien.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 345 (class 1259 OID 370610)
+-- TOC entry 262 (class 1259 OID 84122)
 -- Name: vehicle_catalog_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13697,7 +13660,7 @@ CREATE SEQUENCE vehicle_catalog_seq
 
 
 --
--- TOC entry 326 (class 1259 OID 21647)
+-- TOC entry 255 (class 1259 OID 83716)
 -- Name: vehicle_catalog; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13717,8 +13680,8 @@ CREATE TABLE vehicle_catalog (
 
 
 --
--- TOC entry 4070 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3119 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: TABLE vehicle_catalog; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13726,8 +13689,8 @@ COMMENT ON TABLE vehicle_catalog IS 'Table that stores Vehicle Catalog';
 
 
 --
--- TOC entry 4071 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3120 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.ivehiclecatalogid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13735,8 +13698,8 @@ COMMENT ON COLUMN vehicle_catalog.ivehiclecatalogid IS 'Primary Key';
 
 
 --
--- TOC entry 4072 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3121 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.icatalogtypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13744,8 +13707,8 @@ COMMENT ON COLUMN vehicle_catalog.icatalogtypeid IS 'Group=4800';
 
 
 --
--- TOC entry 4073 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3122 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.vdescription; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13753,8 +13716,8 @@ COMMENT ON COLUMN vehicle_catalog.vdescription IS 'Description';
 
 
 --
--- TOC entry 4074 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3123 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.ireferenceid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13762,8 +13725,8 @@ COMMENT ON COLUMN vehicle_catalog.ireferenceid IS 'Father ID ';
 
 
 --
--- TOC entry 4075 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3124 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13771,8 +13734,8 @@ COMMENT ON COLUMN vehicle_catalog.sstatus IS '1=ACT, 0=INA';
 
 
 --
--- TOC entry 4076 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3125 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13780,8 +13743,8 @@ COMMENT ON COLUMN vehicle_catalog.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 4077 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3126 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13789,8 +13752,8 @@ COMMENT ON COLUMN vehicle_catalog.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 4078 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3127 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13798,8 +13761,8 @@ COMMENT ON COLUMN vehicle_catalog.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 4079 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3128 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13807,8 +13770,8 @@ COMMENT ON COLUMN vehicle_catalog.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 4080 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3129 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13816,8 +13779,8 @@ COMMENT ON COLUMN vehicle_catalog.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 4081 (class 0 OID 0)
--- Dependencies: 326
+-- TOC entry 3130 (class 0 OID 0)
+-- Dependencies: 255
 -- Name: COLUMN vehicle_catalog.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13825,7 +13788,7 @@ COMMENT ON COLUMN vehicle_catalog.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 309 (class 1259 OID 17371)
+-- TOC entry 256 (class 1259 OID 83720)
 -- Name: vehicle_inspection_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13838,7 +13801,7 @@ CREATE SEQUENCE vehicle_inspection_seq
 
 
 --
--- TOC entry 296 (class 1259 OID 17061)
+-- TOC entry 257 (class 1259 OID 83722)
 -- Name: vehicle_inspection; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13865,8 +13828,8 @@ CREATE TABLE vehicle_inspection (
 
 
 --
--- TOC entry 4082 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3131 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: TABLE vehicle_inspection; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13874,8 +13837,8 @@ COMMENT ON TABLE vehicle_inspection IS 'Table that stores Vehicle Inspection';
 
 
 --
--- TOC entry 4083 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3132 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.ivehicleinspectionid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13883,8 +13846,8 @@ COMMENT ON COLUMN vehicle_inspection.ivehicleinspectionid IS 'Primary key';
 
 
 --
--- TOC entry 4084 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3133 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.ivehicleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13892,8 +13855,8 @@ COMMENT ON COLUMN vehicle_inspection.ivehicleid IS 'ivehicleid: refers to the ta
 
 
 --
--- TOC entry 4085 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3134 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.sresulttypeid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13901,8 +13864,8 @@ COMMENT ON COLUMN vehicle_inspection.sresulttypeid IS 'Result Type: refers to th
 
 
 --
--- TOC entry 4086 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3135 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.vcertificatenumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13910,8 +13873,8 @@ COMMENT ON COLUMN vehicle_inspection.vcertificatenumber IS 'Number Certificate';
 
 
 --
--- TOC entry 4087 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3136 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.dinspectiondate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13919,8 +13882,8 @@ COMMENT ON COLUMN vehicle_inspection.dinspectiondate IS 'Inspection Date';
 
 
 --
--- TOC entry 4088 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3137 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.dexpirydate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13928,8 +13891,8 @@ COMMENT ON COLUMN vehicle_inspection.dexpirydate IS 'Expiry Date';
 
 
 --
--- TOC entry 4089 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3138 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.sdurationinspection; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13937,8 +13900,8 @@ COMMENT ON COLUMN vehicle_inspection.sdurationinspection IS 'Duration Inspection
 
 
 --
--- TOC entry 4090 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3139 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.iinspectorid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13946,8 +13909,8 @@ COMMENT ON COLUMN vehicle_inspection.iinspectorid IS 'iinspectorid: refers to th
 
 
 --
--- TOC entry 4091 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3140 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.bpaymentrequired; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13955,8 +13918,8 @@ COMMENT ON COLUMN vehicle_inspection.bpaymentrequired IS 'Payment Required : 1=A
 
 
 --
--- TOC entry 4092 (class 0 OID 0)
--- Dependencies: 296
+-- TOC entry 3141 (class 0 OID 0)
+-- Dependencies: 257
 -- Name: COLUMN vehicle_inspection.vinspectorname; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -13964,7 +13927,7 @@ COMMENT ON COLUMN vehicle_inspection.vinspectorname IS 'Inspector Name';
 
 
 --
--- TOC entry 318 (class 1259 OID 17391)
+-- TOC entry 258 (class 1259 OID 83726)
 -- Name: vehicle_insurance_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -13977,7 +13940,7 @@ CREATE SEQUENCE vehicle_insurance_seq
 
 
 --
--- TOC entry 297 (class 1259 OID 17064)
+-- TOC entry 259 (class 1259 OID 83728)
 -- Name: vehicle_insurance; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -13999,8 +13962,8 @@ CREATE TABLE vehicle_insurance (
 
 
 --
--- TOC entry 4093 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3142 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: TABLE vehicle_insurance; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14008,8 +13971,8 @@ COMMENT ON TABLE vehicle_insurance IS 'Table that stores Vehicle Insurance';
 
 
 --
--- TOC entry 4094 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3143 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.iinsuranceid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14017,8 +13980,8 @@ COMMENT ON COLUMN vehicle_insurance.iinsuranceid IS 'Primary key';
 
 
 --
--- TOC entry 4095 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3144 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.ivehicleid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14026,8 +13989,8 @@ COMMENT ON COLUMN vehicle_insurance.ivehicleid IS 'ivehicleid: refers to the tab
 
 
 --
--- TOC entry 4096 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3145 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.vcertificatenumber; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14035,8 +13998,8 @@ COMMENT ON COLUMN vehicle_insurance.vcertificatenumber IS 'Number of certificate
 
 
 --
--- TOC entry 4097 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3146 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.dissuedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14044,8 +14007,8 @@ COMMENT ON COLUMN vehicle_insurance.dissuedate IS 'Issue Date';
 
 
 --
--- TOC entry 4098 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3147 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.dexpirydate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14053,8 +14016,8 @@ COMMENT ON COLUMN vehicle_insurance.dexpirydate IS 'Expiry Date';
 
 
 --
--- TOC entry 4099 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3148 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.icompanyid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14062,8 +14025,8 @@ COMMENT ON COLUMN vehicle_insurance.icompanyid IS 'Company ID';
 
 
 --
--- TOC entry 4100 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3149 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.sstatus; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14071,8 +14034,8 @@ COMMENT ON COLUMN vehicle_insurance.sstatus IS 'Vehicle insurance status';
 
 
 --
--- TOC entry 4101 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3150 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.iinsertuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14080,8 +14043,8 @@ COMMENT ON COLUMN vehicle_insurance.iinsertuserid IS 'User ID';
 
 
 --
--- TOC entry 4102 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3151 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.dinsertdate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14089,8 +14052,8 @@ COMMENT ON COLUMN vehicle_insurance.dinsertdate IS 'Registration date';
 
 
 --
--- TOC entry 4103 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3152 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.vinsertip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14098,8 +14061,8 @@ COMMENT ON COLUMN vehicle_insurance.vinsertip IS 'IP address user';
 
 
 --
--- TOC entry 4104 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3153 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.iupdateuserid; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14107,8 +14070,8 @@ COMMENT ON COLUMN vehicle_insurance.iupdateuserid IS 'Updated user ID';
 
 
 --
--- TOC entry 4105 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3154 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.dupdatedate; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14116,8 +14079,8 @@ COMMENT ON COLUMN vehicle_insurance.dupdatedate IS 'Updated date';
 
 
 --
--- TOC entry 4106 (class 0 OID 0)
--- Dependencies: 297
+-- TOC entry 3155 (class 0 OID 0)
+-- Dependencies: 259
 -- Name: COLUMN vehicle_insurance.vupdateip; Type: COMMENT; Schema: public; Owner: -
 --
 
@@ -14125,7 +14088,7 @@ COMMENT ON COLUMN vehicle_insurance.vupdateip IS 'Update user IP';
 
 
 --
--- TOC entry 3293 (class 2604 OID 21442)
+-- TOC entry 2344 (class 2604 OID 83732)
 -- Name: ieventid; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -14133,7 +14096,7 @@ ALTER TABLE ONLY systemaudit ALTER COLUMN ieventid SET DEFAULT nextval('systemau
 
 
 --
--- TOC entry 3307 (class 2606 OID 17077)
+-- TOC entry 2358 (class 2606 OID 83734)
 -- Name: document_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14142,7 +14105,7 @@ ALTER TABLE ONLY document
 
 
 --
--- TOC entry 3309 (class 2606 OID 17079)
+-- TOC entry 2360 (class 2606 OID 83736)
 -- Name: exchangerate_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14151,7 +14114,7 @@ ALTER TABLE ONLY exchangerate
 
 
 --
--- TOC entry 3368 (class 2606 OID 166947)
+-- TOC entry 2400 (class 2606 OID 83738)
 -- Name: license_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14160,7 +14123,7 @@ ALTER TABLE ONLY request_license
 
 
 --
--- TOC entry 3358 (class 2606 OID 21709)
+-- TOC entry 2370 (class 2606 OID 83740)
 -- Name: party_location_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14169,7 +14132,7 @@ ALTER TABLE ONLY party_location
 
 
 --
--- TOC entry 3313 (class 2606 OID 17085)
+-- TOC entry 2366 (class 2606 OID 83742)
 -- Name: party_pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14178,7 +14141,7 @@ ALTER TABLE ONLY party
 
 
 --
--- TOC entry 3370 (class 2606 OID 363933)
+-- TOC entry 2409 (class 2606 OID 83744)
 -- Name: pk; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14187,7 +14150,7 @@ ALTER TABLE ONLY user_location
 
 
 --
--- TOC entry 3335 (class 2606 OID 17109)
+-- TOC entry 2394 (class 2606 OID 83746)
 -- Name: pk_application_detail; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14196,7 +14159,7 @@ ALTER TABLE ONLY request_detail
 
 
 --
--- TOC entry 3364 (class 2606 OID 64179)
+-- TOC entry 2396 (class 2606 OID 83748)
 -- Name: pk_application_document; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14205,7 +14168,7 @@ ALTER TABLE ONLY request_document
 
 
 --
--- TOC entry 3337 (class 2606 OID 17113)
+-- TOC entry 2398 (class 2606 OID 83750)
 -- Name: pk_application_status; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14214,7 +14177,7 @@ ALTER TABLE ONLY request_history
 
 
 --
--- TOC entry 3303 (class 2606 OID 17073)
+-- TOC entry 2352 (class 2606 OID 83752)
 -- Name: pk_appointment; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14223,7 +14186,7 @@ ALTER TABLE ONLY appointment
 
 
 --
--- TOC entry 3305 (class 2606 OID 17075)
+-- TOC entry 2354 (class 2606 OID 83754)
 -- Name: pk_authorisation; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14232,7 +14195,7 @@ ALTER TABLE ONLY "authorization"
 
 
 --
--- TOC entry 3347 (class 2606 OID 22753)
+-- TOC entry 2413 (class 2606 OID 83756)
 -- Name: pk_banklien; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14241,7 +14204,7 @@ ALTER TABLE ONLY vehicle_banklien
 
 
 --
--- TOC entry 3349 (class 2606 OID 20992)
+-- TOC entry 2356 (class 2606 OID 83758)
 -- Name: pk_country; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14250,7 +14213,7 @@ ALTER TABLE ONLY country
 
 
 --
--- TOC entry 3345 (class 2606 OID 17123)
+-- TOC entry 2419 (class 2606 OID 83760)
 -- Name: pk_insurance; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14259,7 +14222,7 @@ ALTER TABLE ONLY vehicle_insurance
 
 
 --
--- TOC entry 3351 (class 2606 OID 17946)
+-- TOC entry 2362 (class 2606 OID 83762)
 -- Name: pk_location; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14268,7 +14231,7 @@ ALTER TABLE ONLY location
 
 
 --
--- TOC entry 3311 (class 2606 OID 17083)
+-- TOC entry 2364 (class 2606 OID 83764)
 -- Name: pk_office_examinationtype; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14277,7 +14240,7 @@ ALTER TABLE ONLY office_examinationtype
 
 
 --
--- TOC entry 3315 (class 2606 OID 17087)
+-- TOC entry 2368 (class 2606 OID 83766)
 -- Name: pk_party_company; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14286,7 +14249,7 @@ ALTER TABLE ONLY party_company
 
 
 --
--- TOC entry 3317 (class 2606 OID 17089)
+-- TOC entry 2372 (class 2606 OID 83768)
 -- Name: pk_payment; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14295,7 +14258,7 @@ ALTER TABLE ONLY payment
 
 
 --
--- TOC entry 3319 (class 2606 OID 20197)
+-- TOC entry 2374 (class 2606 OID 83770)
 -- Name: pk_payment_deta_01; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14304,7 +14267,7 @@ ALTER TABLE ONLY payment_detail
 
 
 --
--- TOC entry 3321 (class 2606 OID 17093)
+-- TOC entry 2386 (class 2606 OID 83772)
 -- Name: pk_pricing; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14313,7 +14276,7 @@ ALTER TABLE ONLY product_pricing
 
 
 --
--- TOC entry 3323 (class 2606 OID 17095)
+-- TOC entry 2376 (class 2606 OID 83774)
 -- Name: pk_printer; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14322,7 +14285,7 @@ ALTER TABLE ONLY printer
 
 
 --
--- TOC entry 3325 (class 2606 OID 17097)
+-- TOC entry 2378 (class 2606 OID 83776)
 -- Name: pk_printersettings; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14331,7 +14294,7 @@ ALTER TABLE ONLY printer_user
 
 
 --
--- TOC entry 3327 (class 2606 OID 17099)
+-- TOC entry 2380 (class 2606 OID 83778)
 -- Name: pk_procedure; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14340,7 +14303,7 @@ ALTER TABLE ONLY product
 
 
 --
--- TOC entry 3329 (class 2606 OID 17101)
+-- TOC entry 2384 (class 2606 OID 83780)
 -- Name: pk_procedure_document; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14349,7 +14312,7 @@ ALTER TABLE ONLY product_document
 
 
 --
--- TOC entry 3341 (class 2606 OID 17117)
+-- TOC entry 2388 (class 2606 OID 83782)
 -- Name: pk_procedure_rule; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14358,7 +14321,7 @@ ALTER TABLE ONLY product_rule
 
 
 --
--- TOC entry 3331 (class 2606 OID 20657)
+-- TOC entry 2390 (class 2606 OID 83784)
 -- Name: pk_procedure_step; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14367,7 +14330,7 @@ ALTER TABLE ONLY product_step
 
 
 --
--- TOC entry 3333 (class 2606 OID 17107)
+-- TOC entry 2392 (class 2606 OID 83786)
 -- Name: pk_request; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14376,7 +14339,7 @@ ALTER TABLE ONLY request
 
 
 --
--- TOC entry 3339 (class 2606 OID 17115)
+-- TOC entry 2402 (class 2606 OID 83788)
 -- Name: pk_schedule; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14385,7 +14348,7 @@ ALTER TABLE ONLY schedule
 
 
 --
--- TOC entry 3354 (class 2606 OID 21447)
+-- TOC entry 2405 (class 2606 OID 83790)
 -- Name: pk_systemaudit; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14394,7 +14357,7 @@ ALTER TABLE ONLY systemaudit
 
 
 --
--- TOC entry 3366 (class 2606 OID 106232)
+-- TOC entry 2407 (class 2606 OID 83792)
 -- Name: pk_systemparameter_parameter; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14403,7 +14366,7 @@ ALTER TABLE ONLY systemparameter
 
 
 --
--- TOC entry 3343 (class 2606 OID 17121)
+-- TOC entry 2417 (class 2606 OID 83794)
 -- Name: pk_vehicle_inspection; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14412,7 +14375,7 @@ ALTER TABLE ONLY vehicle_inspection
 
 
 --
--- TOC entry 3360 (class 2606 OID 21770)
+-- TOC entry 2382 (class 2606 OID 83796)
 -- Name: product_composition_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14421,7 +14384,7 @@ ALTER TABLE ONLY product_composition
 
 
 --
--- TOC entry 3356 (class 2606 OID 21651)
+-- TOC entry 2415 (class 2606 OID 83798)
 -- Name: vehicle_catalog_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14430,7 +14393,7 @@ ALTER TABLE ONLY vehicle_catalog
 
 
 --
--- TOC entry 3362 (class 2606 OID 22701)
+-- TOC entry 2411 (class 2606 OID 83800)
 -- Name: vehicle_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14439,7 +14402,7 @@ ALTER TABLE ONLY vehicle
 
 
 --
--- TOC entry 3352 (class 1259 OID 127938)
+-- TOC entry 2403 (class 1259 OID 83801)
 -- Name: idx_systemaudit_ieventid; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -14447,7 +14410,7 @@ CREATE INDEX idx_systemaudit_ieventid ON systemaudit USING btree (ieventid);
 
 
 --
--- TOC entry 3372 (class 2606 OID 17131)
+-- TOC entry 2420 (class 2606 OID 83802)
 -- Name: fk_appointment_party; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14456,7 +14419,7 @@ ALTER TABLE ONLY appointment
 
 
 --
--- TOC entry 3371 (class 2606 OID 17126)
+-- TOC entry 2421 (class 2606 OID 83807)
 -- Name: fk_appointment_schedule; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14465,7 +14428,7 @@ ALTER TABLE ONLY appointment
 
 
 --
--- TOC entry 3373 (class 2606 OID 17136)
+-- TOC entry 2422 (class 2606 OID 83812)
 -- Name: fk_authorization_request; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14474,7 +14437,7 @@ ALTER TABLE ONLY "authorization"
 
 
 --
--- TOC entry 3412 (class 2606 OID 363934)
+-- TOC entry 2453 (class 2606 OID 83817)
 -- Name: fk_location; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14483,7 +14446,7 @@ ALTER TABLE ONLY user_location
 
 
 --
--- TOC entry 3399 (class 2606 OID 22377)
+-- TOC entry 2423 (class 2606 OID 83822)
 -- Name: fk_location_ireferenceid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14492,7 +14455,7 @@ ALTER TABLE ONLY location
 
 
 --
--- TOC entry 3400 (class 2606 OID 22397)
+-- TOC entry 2424 (class 2606 OID 83827)
 -- Name: fk_location_scountryid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14501,7 +14464,7 @@ ALTER TABLE ONLY location
 
 
 --
--- TOC entry 3375 (class 2606 OID 17151)
+-- TOC entry 2425 (class 2606 OID 83832)
 -- Name: fk_party_company_organization; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14510,7 +14473,7 @@ ALTER TABLE ONLY party_company
 
 
 --
--- TOC entry 3374 (class 2606 OID 17146)
+-- TOC entry 2426 (class 2606 OID 83837)
 -- Name: fk_party_company_party; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14519,7 +14482,7 @@ ALTER TABLE ONLY party_company
 
 
 --
--- TOC entry 3402 (class 2606 OID 21710)
+-- TOC entry 2427 (class 2606 OID 83842)
 -- Name: fk_partylocation_locationid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14528,7 +14491,7 @@ ALTER TABLE ONLY party_location
 
 
 --
--- TOC entry 3403 (class 2606 OID 21715)
+-- TOC entry 2428 (class 2606 OID 83847)
 -- Name: fk_partylocation_partyid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14537,7 +14500,7 @@ ALTER TABLE ONLY party_location
 
 
 --
--- TOC entry 3376 (class 2606 OID 17156)
+-- TOC entry 2429 (class 2606 OID 83852)
 -- Name: fk_payment_detail_payment; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14546,7 +14509,7 @@ ALTER TABLE ONLY payment_detail
 
 
 --
--- TOC entry 3377 (class 2606 OID 21245)
+-- TOC entry 2430 (class 2606 OID 83857)
 -- Name: fk_paymentexchangerate_exchangerateid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14555,7 +14518,7 @@ ALTER TABLE ONLY payment_detail
 
 
 --
--- TOC entry 3380 (class 2606 OID 21276)
+-- TOC entry 2431 (class 2606 OID 83862)
 -- Name: fk_printer_locationid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14564,7 +14527,7 @@ ALTER TABLE ONLY printer
 
 
 --
--- TOC entry 3381 (class 2606 OID 21211)
+-- TOC entry 2432 (class 2606 OID 83867)
 -- Name: fk_printeruser_printerid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14573,7 +14536,7 @@ ALTER TABLE ONLY printer_user
 
 
 --
--- TOC entry 3394 (class 2606 OID 17206)
+-- TOC entry 2439 (class 2606 OID 83872)
 -- Name: fk_procedure_rule_procedure; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14582,7 +14545,7 @@ ALTER TABLE ONLY product_rule
 
 
 --
--- TOC entry 3405 (class 2606 OID 22387)
+-- TOC entry 2433 (class 2606 OID 83877)
 -- Name: fk_product_composition_icompositionid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14591,7 +14554,7 @@ ALTER TABLE ONLY product_composition
 
 
 --
--- TOC entry 3404 (class 2606 OID 22382)
+-- TOC entry 2434 (class 2606 OID 83882)
 -- Name: fk_product_composition_iproductid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14600,7 +14563,7 @@ ALTER TABLE ONLY product_composition
 
 
 --
--- TOC entry 3378 (class 2606 OID 22402)
+-- TOC entry 2437 (class 2606 OID 83887)
 -- Name: fk_product_location_ilocationid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14609,7 +14572,7 @@ ALTER TABLE ONLY product_pricing
 
 
 --
--- TOC entry 3379 (class 2606 OID 21721)
+-- TOC entry 2438 (class 2606 OID 83892)
 -- Name: fk_product_pricing_iproductid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14618,7 +14581,7 @@ ALTER TABLE ONLY product_pricing
 
 
 --
--- TOC entry 3384 (class 2606 OID 23147)
+-- TOC entry 2440 (class 2606 OID 83897)
 -- Name: fk_product_step_iproductid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14627,7 +14590,7 @@ ALTER TABLE ONLY product_step
 
 
 --
--- TOC entry 3382 (class 2606 OID 21250)
+-- TOC entry 2435 (class 2606 OID 83902)
 -- Name: fk_productdocument_documentid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14636,7 +14599,7 @@ ALTER TABLE ONLY product_document
 
 
 --
--- TOC entry 3383 (class 2606 OID 21281)
+-- TOC entry 2436 (class 2606 OID 83907)
 -- Name: fk_productdocument_productid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14645,7 +14608,7 @@ ALTER TABLE ONLY product_document
 
 
 --
--- TOC entry 3409 (class 2606 OID 64180)
+-- TOC entry 2448 (class 2606 OID 83912)
 -- Name: fk_request_detail_document_request; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14654,7 +14617,7 @@ ALTER TABLE ONLY request_document
 
 
 --
--- TOC entry 3389 (class 2606 OID 17186)
+-- TOC entry 2444 (class 2606 OID 83917)
 -- Name: fk_request_detail_request; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14663,7 +14626,7 @@ ALTER TABLE ONLY request_detail
 
 
 --
--- TOC entry 3392 (class 2606 OID 17196)
+-- TOC entry 2450 (class 2606 OID 83922)
 -- Name: fk_request_history_request; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14672,7 +14635,7 @@ ALTER TABLE ONLY request_history
 
 
 --
--- TOC entry 3385 (class 2606 OID 17181)
+-- TOC entry 2441 (class 2606 OID 83927)
 -- Name: fk_request_payment; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14681,7 +14644,7 @@ ALTER TABLE ONLY request
 
 
 --
--- TOC entry 3387 (class 2606 OID 182295)
+-- TOC entry 2442 (class 2606 OID 83932)
 -- Name: fk_request_product; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14690,7 +14653,7 @@ ALTER TABLE ONLY request
 
 
 --
--- TOC entry 3386 (class 2606 OID 20671)
+-- TOC entry 2443 (class 2606 OID 83937)
 -- Name: fk_request_service_step; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14699,7 +14662,7 @@ ALTER TABLE ONLY request
 
 
 --
--- TOC entry 3388 (class 2606 OID 172802)
+-- TOC entry 2445 (class 2606 OID 83942)
 -- Name: fk_requestdetail_irequestlicenseid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14708,7 +14671,7 @@ ALTER TABLE ONLY request_detail
 
 
 --
--- TOC entry 3390 (class 2606 OID 22809)
+-- TOC entry 2446 (class 2606 OID 83947)
 -- Name: fk_requestdetail_ivehicleid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14717,7 +14680,7 @@ ALTER TABLE ONLY request_detail
 
 
 --
--- TOC entry 3391 (class 2606 OID 182300)
+-- TOC entry 2447 (class 2606 OID 83952)
 -- Name: fk_requestdetail_product; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14726,7 +14689,7 @@ ALTER TABLE ONLY request_detail
 
 
 --
--- TOC entry 3410 (class 2606 OID 64185)
+-- TOC entry 2449 (class 2606 OID 83957)
 -- Name: fk_requestdocument_documentid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14735,7 +14698,7 @@ ALTER TABLE ONLY request_document
 
 
 --
--- TOC entry 3393 (class 2606 OID 17201)
+-- TOC entry 2451 (class 2606 OID 83962)
 -- Name: fk_schedule_office_examinat_01; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14744,7 +14707,7 @@ ALTER TABLE ONLY schedule
 
 
 --
--- TOC entry 3411 (class 2606 OID 106233)
+-- TOC entry 2452 (class 2606 OID 83967)
 -- Name: fk_systemparameter_group; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14753,7 +14716,7 @@ ALTER TABLE ONLY systemparameter
 
 
 --
--- TOC entry 3406 (class 2606 OID 22814)
+-- TOC entry 2454 (class 2606 OID 83972)
 -- Name: fk_vehicle_imakeid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14762,7 +14725,7 @@ ALTER TABLE ONLY vehicle
 
 
 --
--- TOC entry 3407 (class 2606 OID 22819)
+-- TOC entry 2455 (class 2606 OID 83977)
 -- Name: fk_vehicle_imodelid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14771,7 +14734,7 @@ ALTER TABLE ONLY vehicle
 
 
 --
--- TOC entry 3395 (class 2606 OID 17211)
+-- TOC entry 2459 (class 2606 OID 83982)
 -- Name: fk_vehicle_inspection_inspector; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14780,7 +14743,7 @@ ALTER TABLE ONLY vehicle_inspection
 
 
 --
--- TOC entry 3408 (class 2606 OID 22824)
+-- TOC entry 2456 (class 2606 OID 83987)
 -- Name: fk_vehicle_iversionid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14789,7 +14752,7 @@ ALTER TABLE ONLY vehicle
 
 
 --
--- TOC entry 3398 (class 2606 OID 22754)
+-- TOC entry 2457 (class 2606 OID 83992)
 -- Name: fk_vehiclebanklien_ivehicleid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14798,7 +14761,7 @@ ALTER TABLE ONLY vehicle_banklien
 
 
 --
--- TOC entry 3401 (class 2606 OID 21756)
+-- TOC entry 2458 (class 2606 OID 83997)
 -- Name: fk_vehiclecatalog_ireferenceid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14807,7 +14770,7 @@ ALTER TABLE ONLY vehicle_catalog
 
 
 --
--- TOC entry 3396 (class 2606 OID 22702)
+-- TOC entry 2460 (class 2606 OID 84002)
 -- Name: fk_vehicleinspection_ivehicleid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14816,7 +14779,7 @@ ALTER TABLE ONLY vehicle_inspection
 
 
 --
--- TOC entry 3397 (class 2606 OID 22717)
+-- TOC entry 2461 (class 2606 OID 84007)
 -- Name: fk_vehicleinsurance_ivehicleid; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14825,8 +14788,8 @@ ALTER TABLE ONLY vehicle_insurance
 
 
 --
--- TOC entry 3535 (class 0 OID 0)
--- Dependencies: 7
+-- TOC entry 2584 (class 0 OID 0)
+-- Dependencies: 8
 -- Name: public; Type: ACL; Schema: -; Owner: -
 --
 
@@ -14836,7 +14799,7 @@ GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2016-11-08 17:50:58
+-- Completed on 2016-11-08 15:53:14
 
 --
 -- PostgreSQL database dump complete
