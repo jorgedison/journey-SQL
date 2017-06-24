@@ -1,0 +1,4 @@
+su postgres
+psql
+\connect database
+\COPY (select * from request) TO '/tmp/request.csv' DELIMITER ',' CSV HEADER;
