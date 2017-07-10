@@ -16,6 +16,7 @@ WHERE
 cols.table_catalog = 'Databasename' and
 cols.table_schema = 'public' and
 cols.table_name = c.relname
+ORDER BY 3 ASC
 
 -- Lista columnas, descripcion, tipos de datos
 
