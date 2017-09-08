@@ -1,3 +1,5 @@
+-- Manejo de secuencias en PostgreSQL
+
 SELECT MAX(iapplicationid) FROM application;
 
 SELECT nextval('application_seq');
