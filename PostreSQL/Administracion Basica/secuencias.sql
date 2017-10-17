@@ -24,3 +24,13 @@ END;'  LANGUAGE 'plpgsql' VOLATILE;
 
 SELECT c.relname, get_sequence_last_value(c.relname)
 FROM pg_class c WHERE (c.relkind = 'S');
+
+-- Setea secuencia a ultimo valor de tabla
+
+BEGIN;
+
+LOCK TABLE NOMBRE_TABLA IN EXCLUSIVE MODE;
+
+SELECT setval('NOMBRE_SECUENCIA', COALESCE((SELECT MAX(IDTABLA)+1 FROM NOMBRE_TABLA), 1), false);
+
+COMMIT;
