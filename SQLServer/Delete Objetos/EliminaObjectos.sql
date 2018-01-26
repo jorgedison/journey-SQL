@@ -60,6 +60,20 @@ EXEC sp_executesql @foreign
 PRINT ('1.h. Llaves foráneas eliminadas ' + CONVERT( VARCHAR(19), GETDATE(), 121));
 GO
 
+-- Vistas
+PRINT ('1.i. Eliminando vistas ' + CONVERT( VARCHAR(19), GETDATE(), 121));
+GO
+DECLARE @view NVARCHAR(max)
+DECLARE @n CHAR(1)
+SET @n = CHAR(10)
+SELECT @view = isnull( @view + @n, '' ) +
+    'DROP VIEW [' + schema_name(schema_id) + '].[' + name + ']'
+FROM sys.objects where TYPE = 'V'
+
+EXEC sp_executesql @view
+PRINT ('1.j. Tablas eliminadas ' + CONVERT( VARCHAR(19), GETDATE(), 121));
+GO
+
 -- Tablas
 PRINT ('1.i. Eliminando Tablas ' + CONVERT( VARCHAR(19), GETDATE(), 121));
 GO
@@ -90,4 +104,3 @@ PRINT ('1.l. Esquemas eliminados ' + CONVERT( VARCHAR(19), GETDATE(), 121));
 GO
 
 PRINT ('Fin de Proceso');
-
