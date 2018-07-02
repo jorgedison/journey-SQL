@@ -59,7 +59,7 @@ DBCC UPDATEUSAGE(0)
 DECLARE @sizes TABLE
 (
     [name] NVARCHAR(128),
-    [rows] CHAR(11),
+    [rows] int,
     reserved VARCHAR(18),
     data VARCHAR(18),
     index_size VARCHAR(18),
@@ -68,7 +68,7 @@ DECLARE @sizes TABLE
 INSERT @sizes EXEC sp_msForEachTable 'EXEC sp_spaceused ''?''' 
 SELECT *
 FROM   @sizes
-ORDER BY convert(int, substring(data, 1, len(data)-3)) desc
+ORDER BY [rows] desc
 
 -- Tamaño de tablas (3)
 
