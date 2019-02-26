@@ -14,3 +14,10 @@ REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "USR_NFC";
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "USR_NFC";
 GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO "USR_NFC";
+
+-- Dar permisos de lectura a user01 sobre esquemas configuration y operation
+
+GRANT USAGE ON SCHEMA configuration,operation TO user01;
+GRANT SELECT ON ALL TABLES IN SCHEMA configuration,operation TO user01;
+GRANT SELECT ON ALL SEQUENCES IN SCHEMA configuration,operation TO user01;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA configuration,operation TO user01;
