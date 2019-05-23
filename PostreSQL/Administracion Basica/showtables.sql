@@ -5,7 +5,6 @@
 --Script Description	Shows Tables 
 
 SELECT 
-	TABLENAME, 
 	SCHEMANAME, 
 	TABLENAME, 
 	TABLEOWNER, 
