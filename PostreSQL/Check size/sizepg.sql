@@ -25,3 +25,7 @@ SELECT
 --objecttype – r for the table, i for an index, t for toast data, ...
 --entries – The number of entries in the object (e.g. rows)
 --size – The size of the object
+
+SELECT pg_size_pretty( pg_database_size('dbname') );
+SELECT pg_size_pretty( pg_total_relation_size('tablename') );
+                                                                   
