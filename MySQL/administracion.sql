@@ -9,3 +9,5 @@ SHOW COLUMNS FROM tablename: Shows the attributes, types of attributes, key info
 SHOW INDEX FROM tablename − Presents the details of all indexes on the table, including the PRIMARY KEY.
 
 SHOW TABLE STATUS LIKE tablename\G − Reports details of the MySQL DBMS performance and statistics.
+
+SHOW TABLES;
