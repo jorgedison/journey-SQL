@@ -10,3 +10,12 @@ WHERE
   nspname NOT IN ('pg_catalog', 'information_schema') AND
   relkind='r' 
 ORDER BY reltuples DESC;
+
+SELECT 
+  nspname AS schemaname,relname, CAST(coalesce(reltuples, '0') AS integer)
+FROM pg_class C
+LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+WHERE 
+  nspname NOT IN ('pg_catalog', 'information_schema') AND
+  relkind='r' 
+ORDER BY reltuples DESC;
