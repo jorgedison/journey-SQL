@@ -1,7 +1,7 @@
 USE [NAMEDATABASE]
 GO
 
--- Cantidad de registros por tabla y esquema
+-- Cantidad de registros por tabla y esquema (1)
 SELECT 
 	s.name AS SchemaName,
     t.NAME AS TableName,
@@ -32,3 +32,21 @@ GROUP BY
 ORDER BY 
     s.name, object_name(i.object_id) 
 
+-- Cantidad de registros por tabla y esquema (2)
+
+SELECT
+      QUOTENAME(SCHEMA_NAME(sOBJ.schema_id)) + '.' + QUOTENAME(sOBJ.name) AS [TableName]
+      , SUM(sPTN.Rows) AS [RowCount]
+FROM 
+      sys.objects AS sOBJ
+      INNER JOIN sys.partitions AS sPTN
+            ON sOBJ.object_id = sPTN.object_id
+WHERE
+      sOBJ.type = 'U'
+      AND sOBJ.is_ms_shipped = 0x0
+      AND index_id < 2 -- 0:Heap, 1:Clustered
+GROUP BY 
+      sOBJ.schema_id
+      , sOBJ.name
+ORDER BY 2 desc
+GO
