@@ -10,4 +10,6 @@ SHOW INDEX FROM tablename − Presents the details of all indexes on the table, 
 
 SHOW TABLE STATUS LIKE tablename\G − Reports details of the MySQL DBMS performance and statistics.
 
+SHOW FULL PROCESSLIST
+
 SHOW TABLES;
